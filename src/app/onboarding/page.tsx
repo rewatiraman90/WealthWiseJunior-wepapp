@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -22,13 +22,67 @@ type Plan = 'free' | 'subscriber';
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState<'info' | 'plan'>('info');
+  const [step, setStep] = useState<'loading' | 'signin' | 'info' | 'plan'>('loading');
   const [formData, setFormData] = useState({
     name: '', age: '', grade: '', school: '', city: ''
   });
   const [plan, setPlan] = useState<Plan>('subscriber');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
+  const [sessionUid, setSessionUid] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        setStep('signin');
+        return;
+      }
+
+      setSessionUid(session.user.id);
+
+      // Check if user already has a profile
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+      if (profile) {
+        // Logged in and profile exists. Save to local storage for instant UI sync and redirect.
+        localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number }));
+        router.push('/campus');
+      } else {
+        // Logged in but no profile. Let's pre-fill name if available.
+        if (session.user.user_metadata?.full_name) {
+          setFormData(prev => ({ ...prev, name: session.user.user_metadata.full_name }));
+        }
+        setStep('info');
+      }
+    };
+
+    checkSession();
+
+    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN') {
+        checkSession();
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, [router]);
+
+  const handleGoogleSignIn = async () => {
+    await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: window.location.origin + '/onboarding'
+      }
+    });
+  };
 
   const handleInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,22 +90,15 @@ export default function OnboardingPage() {
   };
 
   const handlePlanSubmit = async (selectedPlan: Plan) => {
+    if (!sessionUid) return;
     setIsSubmitting(true);
     setErrorMsg('');
     const rollNumber = generateRollNumber(formData.grade, formData.city);
     const isSubscriber = selectedPlan === 'subscriber';
     
     try {
-      // 1. Create an anonymous user session in Supabase so they have an auth.uid()
-      const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
-      
-      if (authError || !authData.user) {
-        throw new Error(authError?.message || 'Failed to create account session.');
-      }
-
-      // 2. Insert the profile data into our new profiles table
-      const profile = {
-        id: authData.user.id,
+      const profileInfo = {
+        id: sessionUid,
         name: formData.name,
         age: parseInt(formData.age),
         grade: formData.grade,
@@ -63,16 +110,14 @@ export default function OnboardingPage() {
 
       const { error: insertError } = await supabase
         .from('profiles')
-        .insert([profile]);
+        .insert([profileInfo]);
 
       if (insertError) {
         throw new Error(insertError.message || 'Failed to save profile data.');
       }
 
-      // 3. Keep local storage for instantaneous UI rendering, but now it's backed by DB
-      localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber }));
-      
-      router.push('/');
+      localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
+      router.push('/campus');
     } catch (err: any) {
       setErrorMsg(err.message);
       setIsSubmitting(false);
@@ -81,14 +126,48 @@ export default function OnboardingPage() {
 
   return (
     <div className="ob-root">
-      {step === 'info' ? (
+      {step === 'loading' && (
+        <div className="ob-card premium-glass" style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+          <div className="ob-logo" style={{ justifyContent: 'center' }}>
+            <span className="gradient-text" style={{ fontWeight: 900, fontSize: '1.5rem' }}>WealthWise</span>
+            <span style={{ color: 'var(--neon-green)', fontWeight: 900, fontSize: '1.5rem' }}>Jr.</span>
+          </div>
+          <p className="ob-sub" style={{ margin: 0, color: 'var(--primary-glow)' }}>Verifying credentials...</p>
+        </div>
+      )}
+
+      {step === 'signin' && (
+        <div className="ob-card premium-glass" style={{ textAlign: 'center' }}>
+          <div className="ob-logo" style={{ justifyContent: 'center' }}>
+            <span className="gradient-text" style={{ fontWeight: 900, fontSize: '1.5rem' }}>WealthWise</span>
+            <span style={{ color: 'var(--neon-green)', fontWeight: 900, fontSize: '1.5rem' }}>Jr.</span>
+          </div>
+          <h1 className="gradient-text ob-title" style={{ marginTop: '1rem' }}>Welcome to Campus</h1>
+          <p className="ob-sub">Sign in to start your wealth building journey.</p>
+          
+          <button 
+            className="ob-btn-google pulse" 
+            onClick={handleGoogleSignIn}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+            </svg>
+            <span style={{ fontWeight: 800 }}>Sign in with Google</span>
+          </button>
+        </div>
+      )}
+
+      {step === 'info' && (
         <div className="ob-card premium-glass">
           <div className="ob-logo">
             <span className="gradient-text" style={{ fontWeight: 900, fontSize: '1.5rem' }}>WealthWise</span>
             <span style={{ color: 'var(--neon-green)', fontWeight: 900, fontSize: '1.5rem' }}>Jr.</span>
           </div>
           <h1 className="gradient-text ob-title">Create Your Profile</h1>
-          <p className="ob-sub">Join India's #1 financial literacy platform for students.</p>
+          <p className="ob-sub">Almost there! Complete your student profile.</p>
 
           <form onSubmit={handleInfoSubmit} className="ob-form">
             <div className="input-group">
@@ -146,7 +225,9 @@ export default function OnboardingPage() {
             </button>
           </form>
         </div>
-      ) : (
+      )}
+      
+      {step === 'plan' && (
         <div className="ob-card premium-glass ob-wide">
           <button className="ob-back" onClick={() => setStep('info')}>← Back</button>
           <h2 className="gradient-text ob-title" style={{ marginBottom: '.25rem' }}>Choose Your Plan</h2>
@@ -256,6 +337,28 @@ export default function OnboardingPage() {
           margin-top: .5rem;
         }
         .ob-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(108,99,255,.5); }
+
+        .ob-btn-google {
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.75rem;
+          margin-top: 2rem;
+          padding: 0.95rem;
+          border-radius: 1.1rem;
+          background: #ffffff;
+          color: #000000;
+          font-family: 'Space Grotesk', sans-serif;
+          border: none;
+          cursor: pointer;
+          box-shadow: 0 4px 15px rgba(255,255,255,0.1);
+          transition: all 0.25s ease;
+        }
+        .ob-btn-google:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 25px rgba(255,255,255,0.2);
+        }
 
         /* PLAN GRID */
         .plan-grid { display: flex; flex-direction: column; gap: 1.25rem; margin-bottom: 1.75rem; align-items: center; }
