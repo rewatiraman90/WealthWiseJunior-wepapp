@@ -72,8 +72,10 @@ const questions = [
 export default function ParentLandingPage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [count, setCount] = useState({ s1: 0, s2: 0, s3: 0, s4: 0 });
+  const [hasProfile, setHasProfile] = useState(false);
 
   useEffect(() => {
+    setHasProfile(!!localStorage.getItem('wwj_profile'));
     const targets = [93, 0, 47, 47];
     const interval = setInterval(() => {
       setCount(prev => ({
@@ -93,7 +95,9 @@ export default function ParentLandingPage() {
         <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
           <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
         </div>
-        <Link href="/" className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>Student Login</Link>
+        <Link href={hasProfile ? "/campus" : "/onboarding"} className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>
+          {hasProfile ? "Go to Campus" : "Student Login"}
+        </Link>
       </header>
 
       {/* ══ HERO ══ */}

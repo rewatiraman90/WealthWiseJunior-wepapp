@@ -1,10 +1,27 @@
 "use client";
 import Link from "next/link";
 import Footer from "@/components/Footer";
+import { useState, useEffect } from "react";
 
 export default function StudentLandingPage() {
+  const [hasProfile, setHasProfile] = useState(false);
+
+  useEffect(() => {
+    setHasProfile(!!localStorage.getItem('wwj_profile'));
+  }, []);
+
   return (
     <div className="landing-page">
+      {/* ══ HEADER ══ */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', alignItems: 'center' }}>
+        <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
+          <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
+        </div>
+        <Link href={hasProfile ? "/campus" : "/onboarding"} className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>
+          {hasProfile ? "Go to Campus" : "Student Login"}
+        </Link>
+      </header>
+
       {/* ══ HERO ══ */}
       <section className="hero-section">
         <div className="hero-content">

@@ -2,18 +2,41 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { UserProfile, mockLeaderboard } from '@/data/user';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function LeaderboardPage() {
     const [city, setCity] = useState('Bangalore');
-    const [students, setStudents] = useState<UserProfile[]>([]);
+    const [students, setStudents] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // In a real app, this would fetch by city. For now, we use mock data.
-        setStudents([...mockLeaderboard].sort((a, b) => b.xp - a.xp));
+        const fetchStudents = async () => {
+            setLoading(true);
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .ilike('city', `%${city}%`);
+                
+            if (error) {
+                console.error("Error fetching students:", error);
+                setStudents([]);
+            } else if (data) {
+                // Map DB schema to UI schema, generating fake XP for demo since it's not tracked yet
+                const mapped = data.map((p, i) => ({
+                    ...p,
+                    xp: 5000 - i * 100, // Fake XP for visual graph
+                    earnings: 1200,
+                    testGrade: 'A',
+                })).sort((a, b) => b.xp - a.xp);
+                setStudents(mapped);
+            }
+            setLoading(false);
+        };
+
+        fetchStudents();
     }, [city]);
 
-    const maxXP = Math.max(...students.map(s => s.xp));
+    const maxXP = Math.max(...students.map(s => s.xp), 1);
 
     return (
         <div className="campus-container">
@@ -40,7 +63,7 @@ export default function LeaderboardPage() {
                         <p>Top performers by experience points.</p>
                     </div>
                     <div className="vertical-graph">
-                        {students.slice(0, 5).map((s, idx) => (
+                        {loading ? <p style={{textAlign: 'center', width: '100%', color: '#64748b'}}>Loading Live Data...</p> : students.length === 0 ? <p style={{textAlign: 'center', width: '100%', color: '#64748b'}}>No students found in {city} yet.</p> : students.slice(0, 5).map((s, idx) => (
                             <div key={idx} className="graph-bar-container">
                                 <div className="bar-wrapper">
                                     <div
@@ -62,7 +85,7 @@ export default function LeaderboardPage() {
                         <p>Scroll to see performance details across {city}.</p>
                     </div>
                     <div className="profile-list">
-                        {students.map((s, idx) => (
+                        {loading ? <p style={{textAlign: 'center', padding: '2rem', color: '#64748b'}}>Loading Live Data...</p> : students.length === 0 ? <p style={{textAlign: 'center', padding: '2rem', color: '#64748b'}}>Be the first to join from {city}!</p> : students.map((s, idx) => (
                             <div key={idx} className="student-card">
                                 <div className="rank-badge">#{idx + 1}</div>
                                 <div className="student-info">
