@@ -5,12 +5,12 @@ import { useProfile } from "@/hooks/useProfile";
 const wings = [
   {
     id: "theory",
-    icon: "📚",
-    title: "Theory Wing",
-    desc: "Master financial concepts via interactive story-based lessons.",
+    icon: "📹",
+    title: "Video Classes",
+    desc: "100+ Hours of financial concepts",
     badge: "Next: Magic of Compounding",
     badgeType: "",
-    href: "/library",
+    href: "/classes",
     btnLabel: "Enter Wing →",
     glow: "rgba(108,99,255,0.25)",
     borderCol: "rgba(108,99,255,0.4)",
@@ -203,8 +203,8 @@ export default function CampusDashboard() {
         <div className="next-lesson premium-glass">
           <span className="nl-tag">📖 Up Next</span>
           <h3 className="nl-title">Inflation — The Invisible Tax</h3>
-          <p className="nl-meta">Class 8 · May Module · Theory Step 1/3</p>
-          <Link href="/library/8" className="btn-primary" style={{ fontSize: "0.85rem", padding: "0.6rem 1.4rem" }}>Start Lesson →</Link>
+          <p className="ca-sub">Watch the next guided session from the syllabus.</p>
+          <Link href="/classes" className="btn-primary" style={{ fontSize: "0.85rem", padding: "0.6rem 1.4rem" }}>Start Lesson →</Link>
         </div>
         <div className="leaderboard-preview premium-glass">
           <span className="nl-tag">🏆 Top Students — Your City</span>

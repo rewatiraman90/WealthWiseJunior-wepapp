@@ -120,7 +120,7 @@ export default function ParentLandingPage() {
           </p>
           <div className="hero-ctas">
             <Link href="/onboarding" className="btn-neon">Start Your Child's Journey →</Link>
-            <Link href="/library" className="btn-outline">See the Curriculum</Link>
+            <Link href="/classes" className="btn-outline">See the Curriculum</Link>
           </div>
           <p className="hero-note">Free to start · No credit card required · Parent dashboard included</p>
         </div>
@@ -200,7 +200,7 @@ export default function ParentLandingPage() {
                   <li key={j}><span className="slc-dot">→</span>{p}</li>
                 ))}
               </ul>
-              <Link href={`/library/${i * 2 + 5}`} className="btn-outline slc-btn">View Lessons →</Link>
+              <Link href="/classes" className="btn-outline slc-btn">View Lessons →</Link>
             </div>
           ))}
         </div>
