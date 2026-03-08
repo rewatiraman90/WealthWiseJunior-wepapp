@@ -1,275 +1,334 @@
 "use client";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 
-const wings = [
-  {
-    id: "theory",
-    icon: "📚",
-    title: "Theory Wing",
-    desc: "Master financial concepts via interactive story-based lessons.",
-    badge: "Next: Magic of Compounding",
-    badgeType: "",
-    href: "/library",
-    btnLabel: "Enter Wing →",
-    glow: "rgba(108,99,255,0.25)",
-    borderCol: "rgba(108,99,255,0.4)",
-    gradient: "linear-gradient(135deg,rgba(108,99,255,0.15),rgba(108,99,255,0.03))"
-  },
-  {
-    id: "lab",
-    icon: "🧪",
-    title: "Activity Lab",
-    desc: "Complete Home Activities to earn XP and real-world skills.",
-    badge: "🔴 1 Pending: Price-Point Hunt",
-    badgeType: "urgent",
-    href: "/lab",
-    btnLabel: "Go to Lab →",
-    glow: "rgba(0,229,160,0.25)",
-    borderCol: "rgba(0,229,160,0.4)",
-    gradient: "linear-gradient(135deg,rgba(0,229,160,0.12),rgba(0,229,160,0.02))"
-  },
-  {
-    id: "market",
-    icon: "📈",
-    title: "Market Simulator",
-    desc: "Practice trading with real NSE/BSE data in a risk-free environment.",
-    badge: "🔒 Unlocks at Level 15",
-    badgeType: "locked",
-    href: "#",
-    btnLabel: "Locked",
-    locked: true,
-    glow: "rgba(108,99,255,0.1)",
-    borderCol: "rgba(108,99,255,0.15)",
-    gradient: "linear-gradient(135deg,rgba(14,22,56,0.5),rgba(14,22,56,0.2))"
-  },
-  {
-    id: "gps",
-    icon: "🧭",
-    title: "Freedom Roadmap",
-    desc: "Your life GPS. Build skills and assets, not just degrees.",
-    badge: "New: Level 18 Milestones",
-    badgeType: "",
-    href: "/gps",
-    btnLabel: "View My GPS →",
-    glow: "rgba(255,107,53,0.2)",
-    borderCol: "rgba(255,107,53,0.35)",
-    gradient: "linear-gradient(135deg,rgba(255,107,53,0.10),rgba(255,107,53,0.02))"
-  },
-  {
-    id: "leaderboard",
-    icon: "🏆",
-    title: "City Leaderboard",
-    desc: "See how you rank against students in your city and school.",
-    badge: "🏙️ Bengaluru Rankings Updated",
-    badgeType: "",
-    href: "/leaderboard",
-    btnLabel: "View Rankings →",
-    glow: "rgba(255,209,102,0.2)",
-    borderCol: "rgba(255,209,102,0.3)",
-    gradient: "linear-gradient(135deg,rgba(255,209,102,0.10),rgba(255,209,102,0.02))"
-  },
-  {
-    id: "parent",
-    icon: "👪",
-    title: "For Parents",
-    desc: "Why financial literacy is the subject no school teaches — and why it matters.",
-    badge: "See the full story →",
-    badgeType: "parent",
-    href: "/parent",
-    btnLabel: "Parent Portal →",
-    glow: "rgba(0,229,160,0.15)",
-    borderCol: "rgba(0,229,160,0.3)",
-    gradient: "linear-gradient(135deg,rgba(0,229,160,0.08),rgba(0,229,160,0.01))"
-  }
-];
-
-export default function CampusDashboard() {
+export default function StudentLandingPage() {
   return (
-    <div className="campus-wrap">
-      {/* ── HERO ── */}
-      <div className="campus-hero">
-        <div>
-          <p className="campus-eyebrow">Good Evening, Aaryan 👋</p>
-          <h1 className="gradient-text campus-h1">MoneyMind Campus</h1>
-          <p className="campus-subtitle">Class 8 · Semester 2 · Financial Intelligence Academy</p>
-        </div>
-        <div className="campus-kpis">
-          <div className="kpi-pill premium-glass">
-            <span className="kpi-icon">🔥</span>
-            <div className="kpi-body">
-              <span className="kpi-val">21</span>
-              <span className="kpi-lbl">Day Streak</span>
+    <div className="landing-page">
+      {/* ══ HERO ══ */}
+      <section className="hero-section">
+        <div className="hero-content">
+          <div className="hero-badge">
+            <span className="live-dot" /> <span>Real-world skills you won't learn in school</span>
+          </div>
+          <h1 className="hero-title">
+            Master Money.<br />
+            <span className="gradient-text">Build Your Empire.</span>
+          </h1>
+          <p className="hero-sub">
+            School teaches you how to work for money. WealthWise Junior teaches you how to make money work for you. Discover the cheat codes to wealth, earn real rewards, and unlock your Freedom GPS.
+          </p>
+          <div className="hero-actions">
+            <Link href="/onboarding" className="btn-neon pulse" style={{ fontSize: "1.1rem", padding: "1rem 2.5rem" }}>
+              Subscribe Now →
+            </Link>
+            <Link href="/parent" className="btn-outline">
+              For Parents
+            </Link>
+          </div>
+          <div className="hero-stats">
+            <div className="h-stat">
+              <span className="hs-val">12,000+</span>
+              <span className="hs-lbl">Students Earning XP</span>
+            </div>
+            <div className="h-stat">
+              <span className="hs-val">Class 5-12</span>
+              <span className="hs-lbl">Tailored Curriculum</span>
             </div>
           </div>
-          <div className="kpi-pill premium-glass">
-            <span className="kpi-icon">🏆</span>
-            <div className="kpi-body">
-              <span className="kpi-val">#4</span>
-              <span className="kpi-lbl">Class Rank</span>
-            </div>
-          </div>
-          <div className="kpi-pill premium-glass">
-            <span className="kpi-icon">💎</span>
-            <div className="kpi-body">
-              <span className="kpi-val">12,450</span>
-              <span className="kpi-lbl">WealthPoints</span>
-            </div>
-          </div>
         </div>
-      </div>
-
-      {/* ── PROGRESS BAR ── */}
-      <div className="progress-strip premium-glass">
-        <div className="ps-label">
-          <span className="ps-title">Annual Syllabus Progress</span>
-          <span className="ps-pct gradient-text">64%</span>
-        </div>
-        <div className="ps-track">
-          <div className="ps-fill" />
-          <div className="ps-dot" style={{ left: "64%" }} />
-        </div>
-        <div className="ps-meta">
-          <span>March – Compound Interest ✅</span>
-          <span className="ps-curr">📍 April – Inflation (In Progress)</span>
-          <span>May – onward 🔒</span>
-        </div>
-      </div>
-
-      {/* ── WING GRID ── */}
-      <div className="wings-grid">
-        {wings.map(w => (
-          <div
-            key={w.id}
-            className={`wing-card ${w.locked ? "locked" : ""}`}
-            style={{
-              background: w.gradient,
-              borderColor: w.locked ? "rgba(108,99,255,0.1)" : w.borderCol,
-              boxShadow: `0 4px 40px ${w.glow}`,
-            }}
-          >
-            <div className="wc-top">
-              <div className="wc-icon">{w.icon}</div>
-              <div className={`wc-badge ${w.badgeType}`}>{w.badge}</div>
-            </div>
-            <div className="wc-body">
-              <h2 className="wc-title">{w.title}</h2>
-              <p className="wc-desc">{w.desc}</p>
-            </div>
-            {!w.locked
-              ? <Link href={w.href} className="btn-primary wc-btn">{w.btnLabel}</Link>
-              : <button className="btn-outline wc-btn" disabled style={{ opacity: 0.4, cursor: "not-allowed" }}>{w.btnLabel}</button>
-            }
-          </div>
-        ))}
-      </div>
-
-      {/* ── BOTTOM FOOTER ── */}
-      <div className="campus-footer">
-        <div className="goal-card premium-glass">
-          <div className="goal-top">
-            <span className="goal-label">🎯 Current Goal</span>
-            <span className="goal-name">New Bicycle</span>
-          </div>
-          <div className="goal-bar-wrap">
-            <div className="goal-bar-track"><div className="goal-bar-fill" style={{ width: "75%" }} /></div>
-            <span className="goal-pct">75% saved</span>
-          </div>
-          <span className="goal-note">₹875 more to go</span>
-        </div>
-        <div className="next-lesson premium-glass">
-          <span className="nl-tag">📖 Up Next</span>
-          <h3 className="nl-title">Inflation — The Invisible Tax</h3>
-          <p className="nl-meta">Class 8 · May Module · Theory Step 1/3</p>
-          <Link href="/library/8" className="btn-primary" style={{ fontSize: "0.85rem", padding: "0.6rem 1.4rem" }}>Start Lesson →</Link>
-        </div>
-        <div className="leaderboard-preview premium-glass">
-          <span className="nl-tag">🏆 Top Students — Your City</span>
-          {[
-            { rank: 1, name: "Priya S.", school: "DPS, Bhopal", pts: 18340 },
-            { rank: 2, name: "Rohit K.", school: "KV, Bhopal", pts: 15200 },
-            { rank: 3, name: "Sneha M.", school: "Amity, Bhopal", pts: 14700 },
-            { rank: 4, name: "You ✨", school: "Your School", pts: 12450, isMe: true },
-          ].map(s => (
-            <div key={s.rank} className={`lb-row ${s.isMe ? "lb-me" : ""}`}>
-              <span className="lb-rank">{s.rank}</span>
-              <div className="lb-info">
-                <span className="lb-name">{s.name}</span>
-                <span className="lb-school">{s.school}</span>
+        <div className="hero-visual">
+          <div className="device-mockup premium-glass">
+            <div className="mockup-header">
+              <div className="dots">
+                <span className="dot r" /><span className="dot y" /><span className="dot g" />
               </div>
-              <span className="lb-pts">{s.pts.toLocaleString()}</span>
+              <span className="mockup-title">WealthWise Jr. Campus</span>
             </div>
-          ))}
+            <div className="mockup-body">
+              <div className="mk-card mk-1">
+                <span className="mk-icon">💎</span>
+                <div className="mk-info">
+                  <span className="mk-title">+500 WealthPoints</span>
+                  <span className="mk-sub">You completed: Compound Interest</span>
+                </div>
+              </div>
+              <div className="mk-card mk-2">
+                <span className="mk-icon">🏆</span>
+                <div className="mk-info">
+                  <span className="mk-title">Rank #4 Secured!</span>
+                  <span className="mk-sub">Bengaluru City Leaderboard</span>
+                </div>
+              </div>
+              <div className="mk-profile">
+                <div className="mk-avatar">A</div>
+                <div className="mk-info">
+                  <span className="mk-title">Aaryan K. <span className="blue-tick">✓</span></span>
+                  <span className="mk-sub">Monthly Subscriber</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="hero-glow" />
         </div>
-      </div>
+      </section>
+
+      {/* ══ FEATURES ══ */}
+      <section className="features-section">
+        <h2 className="section-title text-center">
+          Why add WealthWise to your life?
+        </h2>
+        <p className="section-subtitle text-center">
+          It's not just another class. It's a game where you level up in real life.
+        </p>
+
+        <div className="features-grid">
+          <div className="feat-card premium-glass">
+            <div className="fc-icon">💰</div>
+            <h3 className="fc-title">Earn as you learn</h3>
+            <p className="fc-desc">
+              Complete Home Activities and Summer Projects to earn Virtual ₹ and XP. Build a streak, climb the city leaderboard, and prove you're the smartest investor in your school.
+            </p>
+          </div>
+          <div className="feat-card premium-glass">
+            <div className="fc-icon">🎓</div>
+            <h3 className="fc-title">Meet "Sir" — Your AI Mentor</h3>
+            <p className="fc-desc">
+              Got a doubt at 11 PM? "Sir" is our voice-enabled AI teacher. He's available 24/7 to explain complex money concepts simply, just like a personal tutor.
+            </p>
+            <div className="fc-tag">Voice Enabled 🎙️</div>
+          </div>
+          <div className="feat-card premium-glass">
+            <div className="fc-icon">🛡️</div>
+            <h3 className="fc-title">Get the Blue Tick ✓</h3>
+            <p className="fc-desc">
+              Become a Monthly Subscriber to unlock your official Roll Number and the prestigious Blue Tick profile badge, proving you are a committed wealth builder.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ AI TEACHER SHOWCASE ══ */}
+      <section className="ai-section">
+        <div className="ai-content">
+          <h2 className="section-title">
+            Never stay stuck.<br />
+            <span className="gradient-text">Ask Sir.</span>
+          </h2>
+          <p className="ai-desc">
+            Unlike schools where you might be afraid to ask questions, WealthWise Junior gives you an AI teacher who never judges. 
+            Talk to "Sir" about inflation, taxes, or even how to ask your parents for pocket money. He's smart, patient, and speaks your language.
+          </p>
+          <ul className="ai-features">
+            <li><span className="aif-icon">🗣️</span> Voice conversations driven by Google Gemini</li>
+            <li><span className="aif-icon">📚</span> Knows your exact Class syllabus and progress</li>
+            <li><span className="aif-icon">🛡️</span> Safe, moderated environment built for students</li>
+          </ul>
+          <Link href="/onboarding" className="btn-outline">
+            Meet Sir →
+          </Link>
+        </div>
+        <div className="ai-visual">
+          <div className="ai-chat-mockup premium-glass">
+            <div className="chat-bubble student">
+              Hey Sir, how does Compound Interest actually work?
+            </div>
+            <div className="chat-bubble teacher">
+              <span className="t-name">Sir 🎓</span>
+              Imagine a snowball rolling down a hill. As it rolls, it picks up more snow, getting bigger and faster! That's compound interest...
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CTA ══ */}
+      <section className="cta-section">
+        <div className="cta-box premium-glass">
+          <h2 className="cta-title">Ready to build your empire?</h2>
+          <p className="cta-desc">
+            Join thousands of Indian students building real wealth. Subscribe today to unlock the full curriculum, the AI Mentor, and the City Leaderboards.
+          </p>
+          <div className="cta-actions">
+            <Link href="/onboarding" className="btn-neon pulse">
+              Subscribe Now
+            </Link>
+            <span className="cta-or">or</span>
+            <Link href="/parent" className="btn-text">
+              Show this to your parents
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <Footer />
 
       <style jsx>{`
-        .campus-wrap { display: flex; flex-direction: column; gap: 2rem; padding-bottom: 2rem; }
+        .landing-page { padding-bottom: 2rem; overflow-x: hidden; }
 
-        .campus-hero { display: flex; justify-content: space-between; align-items: flex-start; gap: 2rem; flex-wrap: wrap; }
-        .campus-eyebrow { font-size: 0.85rem; font-weight: 700; color: var(--muted); margin-bottom: 0.4rem; }
-        .campus-h1 { font-size: clamp(2rem, 4vw, 3rem); margin-bottom: 0.4rem; }
-        .campus-subtitle { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+        /* ── HERO ── */
+        .hero-section {
+          min-height: 90vh;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4rem;
+          align-items: center;
+          padding: 4rem 6vw;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+        .hero-badge {
+          display: inline-flex; align-items: center; gap: 0.6rem;
+          padding: 0.5rem 1rem; border-radius: 2rem;
+          background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25);
+          font-size: 0.8rem; font-weight: 700; color: var(--primary-glow);
+          margin-bottom: 1.5rem;
+        }
+        .live-dot {
+          width: 8px; height: 8px; border-radius: 50%;
+          background: var(--neon-green);
+          box-shadow: 0 0 8px rgba(0,229,160,0.8);
+          animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        
+        .hero-title {
+          font-size: clamp(2.5rem, 5vw, 4.5rem);
+          font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem;
+          color: var(--foreground);
+        }
+        .hero-sub {
+          font-size: 1.1rem; color: var(--muted);
+          line-height: 1.7; margin-bottom: 2.5rem; max-width: 540px;
+        }
+        .hero-actions {
+          display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 3rem;
+        }
+        .hero-stats {
+          display: flex; gap: 3rem;
+        }
+        .h-stat { display: flex; flex-direction: column; gap: 0.3rem; }
+        .hs-val { font-size: 1.5rem; font-weight: 900; color: var(--foreground); }
+        .hs-lbl { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .campus-kpis { display: flex; gap: 0.75rem; flex-wrap: wrap; }
-        .kpi-pill { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.25rem; border-radius: 1.25rem; }
-        .kpi-icon { font-size: 1.5rem; }
-        .kpi-body { display: flex; flex-direction: column; }
-        .kpi-val { font-size: 1.15rem; font-weight: 900; color: var(--foreground); }
-        .kpi-lbl { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+        .hero-visual {
+          position: relative;
+          display: flex; justify-content: center; align-items: center;
+        }
+        .hero-glow {
+          position: absolute; width: 400px; height: 400px;
+          background: radial-gradient(circle, rgba(108,99,255,0.2), transparent 70%);
+          z-index: -1; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        .device-mockup {
+          width: 100%; max-width: 400px;
+          border-radius: 1.5rem; border: 1px solid rgba(108,99,255,0.3);
+          background: rgba(10,15,44,0.8); backdrop-filter: blur(20px);
+          box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 40px rgba(108,99,255,0.1);
+          overflow: hidden;
+        }
+        .mockup-header {
+          padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
+          display: flex; align-items: center; gap: 1rem;
+        }
+        .dots { display: flex; gap: 0.4rem; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot.r { background: #FF5A5A; }
+        .dot.y { background: #FFBD2E; }
+        .dot.g { background: #28CA42; }
+        .mockup-title { font-size: 0.8rem; font-family: monospace; color: var(--muted); margin: 0 auto; opacity: 0.7; }
+        .mockup-body {
+          padding: 2rem; display: flex; flex-direction: column; gap: 1rem;
+        }
+        .mk-card {
+          padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,0.03);
+          border: 1px solid rgba(255,255,255,0.05);
+          display: flex; align-items: center; gap: 1rem;
+        }
+        .mk-1 { border-color: rgba(0,229,160,0.2); }
+        .mk-2 { border-color: rgba(255,209,102,0.2); }
+        .mk-icon { font-size: 1.5rem; }
+        .mk-info { display: flex; flex-direction: column; gap: 0.2rem; }
+        .mk-title { font-size: 0.9rem; font-weight: 700; color: var(--foreground); display: flex; align-items: center; gap: 0.4rem; }
+        .mk-sub { font-size: 0.7rem; color: var(--muted); }
+        .blue-tick { width: 14px; height: 14px; background: #1DA1F2; border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; font-size: 0.5rem; font-weight: 900; }
+        .mk-profile {
+          margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1);
+          display: flex; align-items: center; gap: 1rem;
+        }
+        .mk-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--neon-green)); display: flex; justify-content: center; align-items: center; font-weight: 900; color: white; border: 2px solid var(--primary); }
 
-        .progress-strip { padding: 1.5rem 2rem; border-radius: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .ps-label { display: flex; justify-content: space-between; align-items: baseline; }
-        .ps-title { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
-        .ps-pct { font-size: 1.5rem; font-weight: 900; }
-        .ps-track { height: 8px; background: rgba(108,99,255,0.15); border-radius: 4px; position: relative; }
-        .ps-fill { position: absolute; left: 0; top: 0; height: 100%; width: 64%; background: linear-gradient(90deg,var(--primary),var(--neon-green)); border-radius: 4px; box-shadow: 0 0 12px rgba(0,229,160,0.4); }
-        .ps-dot { position: absolute; top: 50%; transform: translate(-50%,-50%); width: 14px; height: 14px; background: white; border-radius: 50%; border: 2px solid var(--neon-green); box-shadow: 0 0 10px rgba(0,229,160,0.6); }
-        .ps-meta { display: flex; justify-content: space-between; font-size: 0.72rem; font-weight: 600; color: var(--muted); }
-        .ps-curr { color: var(--primary-glow); }
+        /* ── GLOBAL HELPERS ── */
+        .text-center { text-align: center; }
+        .section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--foreground); margin-bottom: 1rem; }
+        .section-subtitle { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin: 0 auto 4rem; line-height: 1.6; }
 
-        .wings-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
-        .wing-card { border-radius: 1.75rem; border: 1px solid; padding: 2rem; display: flex; flex-direction: column; gap: 1.25rem; transition: all 0.3s; position: relative; overflow: hidden; }
-        .wing-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg,rgba(255,255,255,0.03),transparent); pointer-events: none; }
-        .wing-card:not(.locked):hover { transform: translateY(-6px); }
-        .wing-card.locked { filter: grayscale(0.3); }
+        /* ── FEATURES ── */
+        .features-section { padding: 6rem 6vw; max-width: 1400px; margin: 0 auto; }
+        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        .feat-card {
+          padding: 2.5rem; border-radius: 1.5rem;
+          display: flex; flex-direction: column; gap: 1rem;
+          transition: transform 0.3s;
+        }
+        .feat-card:hover { transform: translateY(-5px); }
+        .fc-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+        .fc-title { font-size: 1.25rem; font-weight: 800; color: var(--foreground); }
+        .fc-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; flex: 1; }
+        .fc-tag {
+          align-self: flex-start; padding: 0.3rem 0.8rem; border-radius: 2rem;
+          background: rgba(108,99,255,0.1); color: var(--primary-glow); border: 1px solid rgba(108,99,255,0.3);
+          font-size: 0.75rem; font-weight: 700; margin-top: 1rem;
+        }
 
-        .wc-top { display: flex; justify-content: space-between; align-items: flex-start; }
-        .wc-icon { font-size: 2.5rem; }
-        .wc-badge { font-size: 0.65rem; font-weight: 900; padding: 0.25rem 0.7rem; border-radius: 2rem; background: rgba(108,99,255,0.12); color: var(--primary-glow); border: 1px solid rgba(108,99,255,0.25); max-width: 160px; text-align: right; line-height: 1.4; }
-        .wc-badge.urgent { background: rgba(255,68,102,0.12); color: #FF6680; border-color: rgba(255,68,102,0.25); }
-        .wc-badge.locked { background: rgba(148,163,184,0.08); color: var(--muted); border-color: rgba(148,163,184,0.15); }
-        .wc-badge.parent { background: rgba(0,229,160,0.10); color: var(--neon-green); border-color: rgba(0,229,160,0.25); }
-        .wc-body { flex: 1; }
-        .wc-title { font-size: 1.2rem; font-weight: 900; color: var(--foreground); margin-bottom: 0.5rem; }
-        .wc-desc { font-size: 0.85rem; color: var(--muted); font-weight: 500; line-height: 1.6; }
-        .wc-btn { display: block; text-align: center; text-decoration: none; font-size: 0.85rem; padding: 0.65rem 1.25rem; }
+        /* ── AI TEACHER ── */
+        .ai-section {
+          padding: 6rem 6vw; max-width: 1400px; margin: 0 auto;
+          display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
+        }
+        .ai-desc { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
+        .ai-features { list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+        .ai-features li { display: flex; align-items: center; gap: 1rem; font-size: 0.95rem; color: var(--foreground); font-weight: 600; }
+        .aif-icon { flex-shrink: 0; background: rgba(255,255,255,0.05); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
+        
+        .ai-visual { display: flex; justify-content: center; }
+        .ai-chat-mockup {
+          width: 100%; max-width: 450px; padding: 2rem;
+          border-radius: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
+          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .chat-bubble { padding: 1rem 1.25rem; border-radius: 1.25rem; font-size: 0.9rem; line-height: 1.5; font-weight: 500; }
+        .student { background: rgba(255,255,255,0.05); color: var(--foreground); border-bottom-right-radius: 4px; border: 1px solid rgba(255,255,255,0.08); align-self: flex-end; max-width: 80%; }
+        .teacher { background: rgba(108,99,255,0.1); color: #E2E8F0; border-top-left-radius: 4px; border: 1px solid rgba(108,99,255,0.25); align-self: flex-start; max-width: 90%; }
+        .t-name { display: block; font-size: 0.75rem; font-weight: 800; color: var(--primary-glow); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
 
-        .campus-footer { display: grid; grid-template-columns: 1fr 1.5fr 1.5fr; gap: 1.5rem; }
-        .goal-card, .next-lesson, .leaderboard-preview { padding: 1.5rem; border-radius: 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
-        .goal-top { display: flex; flex-direction: column; gap: 0.2rem; }
-        .goal-label { font-size: 0.7rem; font-weight: 900; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
-        .goal-name { font-size: 1.25rem; font-weight: 900; color: var(--foreground); }
-        .goal-bar-wrap { display: flex; align-items: center; gap: 0.75rem; }
-        .goal-bar-track { flex: 1; height: 8px; background: rgba(108,99,255,0.15); border-radius: 4px; overflow: hidden; }
-        .goal-bar-fill { height: 100%; background: linear-gradient(90deg,var(--primary),var(--neon-green)); border-radius: 4px; }
-        .goal-pct { font-size: 0.8rem; font-weight: 800; color: var(--neon-green); white-space: nowrap; }
-        .goal-note { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
+        /* ── CTA ── */
+        .cta-section { padding: 6rem 6vw; max-width: 1000px; margin: 0 auto; text-align: center; }
+        .cta-box {
+          padding: 4rem 2rem; border-radius: 2rem;
+          background: linear-gradient(135deg, rgba(14,22,56,0.8), rgba(10,15,44,0.9));
+          border: 1px solid rgba(108,99,255,0.3);
+          box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 40px rgba(108,99,255,0.05);
+        }
+        .cta-title { font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; margin-bottom: 1rem; color: var(--foreground); }
+        .cta-desc { font-size: 1.1rem; color: var(--muted); margin-bottom: 2.5rem; }
+        .cta-actions { display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
+        .cta-or { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
+        .btn-text { color: var(--muted); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; font-size: 0.9rem; transition: color 0.2s; }
+        .btn-text:hover { color: var(--primary-glow); }
 
-        .nl-tag { font-size: 0.68rem; font-weight: 900; color: var(--primary-glow); text-transform: uppercase; letter-spacing: 0.08em; }
-        .nl-title { font-size: 1.05rem; font-weight: 900; color: var(--foreground); line-height: 1.3; }
-        .nl-meta { font-size: 0.78rem; color: var(--muted); font-weight: 600; }
-
-        .lb-row { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid var(--border); }
-        .lb-row:last-child { border-bottom: none; }
-        .lb-me { background: rgba(108,99,255,0.08); border-radius: 0.5rem; padding: 0.5rem 0.6rem; margin: 0 -0.6rem; }
-        .lb-rank { width: 24px; height: 24px; border-radius: 50%; background: rgba(108,99,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 900; color: var(--primary-glow); flex-shrink: 0; }
-        .lb-info { flex: 1; }
-        .lb-name { font-size: 0.85rem; font-weight: 700; color: var(--foreground); display: block; }
-        .lb-school { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
-        .lb-pts { font-size: 0.78rem; font-weight: 800; color: var(--neon-green); }
-
-        @media(max-width: 1200px) { .wings-grid { grid-template-columns: 1fr 1fr; } }
-        @media(max-width: 900px) { .wings-grid, .campus-footer { grid-template-columns: 1fr; } .campus-hero { flex-direction: column; } }
+        @media(max-width: 1024px) {
+          .hero-section { grid-template-columns: 1fr; text-align: center; padding: 4rem 5vw; }
+          .hero-sub { margin: 0 auto 2.5rem; }
+          .hero-actions { justify-content: center; }
+          .hero-stats { justify-content: center; }
+          .ai-section { grid-template-columns: 1fr; text-align: center; }
+          .ai-features li { justify-content: center; }
+        }
+        @media(max-width: 768px) {
+          .features-grid { grid-template-columns: 1fr; }
+          .hero-stats { flex-direction: column; gap: 1.5rem; }
+          .cta-actions { flex-direction: column; gap: 1rem; }
+        }
       `}</style>
     </div>
   );

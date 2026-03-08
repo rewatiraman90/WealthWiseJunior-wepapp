@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import ClientLayout from "@/components/ClientLayout";
+import { JarProvider } from "@/components/JarContext";
 
 export const metadata: Metadata = {
   title: "WealthWise Junior - Financial Literacy for India",
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+        <JarProvider>
+          <ClientLayout>
+            {children}
+          </ClientLayout>
+        </JarProvider>
       </body>
     </html>
   );

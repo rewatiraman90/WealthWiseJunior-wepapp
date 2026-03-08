@@ -1,4 +1,5 @@
 "use client";
+import SubscriberLock from "@/components/SubscriberLock";
 
 import Link from 'next/link';
 import HustleCalculator from '@/components/HustleCalculator';
@@ -59,15 +60,29 @@ export default function CareerGPS() {
     };
 
     return (
-        <div className="campus-container">
-            <header className="campus-hero">
-                <div className="campus-info">
-                    <Link href="/" className="back-link">← Back to Campus</Link>
-                    <h1 className="gradient-text">Freedom Roadmap</h1>
-                    <p className="subtitle">Your GPS for Financial Independence (10-22 yrs)</p>
-                </div>
-            </header>
+    <SubscriberLock title="Freedom Roadmap Access" featureName="Premium Life GPS">
+      <div className="gps-root">
+        {/* HERO */}
+        <div className="g-hero">
+          <div>
+            <Link href="/" className="back-link">← Back to Campus</Link>
+            <p className="g-eyebrow">🧭 Life GPS</p>
+            <h1 className="gradient-text">Freedom Roadmap</h1>
+            <p className="g-sub">Visualize the exact path from a student today to an independent adult tomorrow.</p>
+          </div>
+          <div className="g-stats">
+            <div className="g-stat premium-glass">
+              <span className="gs-val">Class 8</span>
+              <span className="gs-lbl">Current Stage</span>
+            </div>
+            <div className="g-stat premium-glass">
+              <span className="gs-val">₹25L</span>
+              <span className="gs-lbl">Est. College Fund</span>
+            </div>
+          </div>
+        </div>
 
+        {/* ROADMAP TIMELINE */}
             <div className="gps-grid">
                 <section className="milestones-timeline">
                     <div className="section-header">
@@ -144,11 +159,18 @@ export default function CareerGPS() {
             </div>
 
             <style jsx>{`
-        .campus-container { display: flex; flex-direction: column; gap: 2rem; }
-        .campus-hero { display: flex; justify-content: space-between; align-items: flex-end; }
+        .gps-root { display: flex; flex-direction: column; gap: 2rem; }
+        .g-hero { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 2rem; border-bottom: 1px solid var(--border); margin-bottom: 2rem; }
+        .g-hero > div:first-child { flex: 1; }
+        .g-eyebrow { font-size: 0.85rem; font-weight: 700; color: var(--primary); margin-bottom: 0.5rem; }
+        .g-hero h1 { font-size: 2.8rem; font-weight: 900; line-height: 1.1; margin-bottom: 0.8rem; }
+        .g-sub { color: #64748b; font-weight: 600; font-size: 1.1rem; max-width: 600px; }
+        .g-stats { display: flex; gap: 1rem; margin-left: 2rem; }
+        .g-stat { padding: 1.5rem; border-radius: 1.5rem; text-align: center; min-width: 150px; }
+        .gs-val { display: block; font-size: 1.8rem; font-weight: 900; color: var(--primary); margin-bottom: 0.3rem; }
+        .gs-lbl { display: block; font-size: 0.85rem; font-weight: 700; color: #64748b; }
+
         .back-link { color: var(--primary); text-decoration: none; font-weight: 700; margin-bottom: 0.5rem; display: block; }
-        h1 { font-size: 2.5rem; font-weight: 900; }
-        .subtitle { color: #64748b; font-weight: 600; }
         
         .gps-grid { display: grid; grid-template-columns: 1fr 400px; gap: 2rem; }
         
@@ -225,6 +247,7 @@ export default function CareerGPS() {
         
         @media (max-width: 1200px) { .gps-grid { grid-template-columns: 1fr; } .timeline::before { left: 0; } }
       `}</style>
-        </div>
-    );
+      </div>
+    </SubscriberLock>
+  );
 }

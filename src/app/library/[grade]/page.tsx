@@ -1,4 +1,5 @@
 "use client";
+import SubscriberLock from "@/components/SubscriberLock";
 import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -54,21 +55,23 @@ export default function GradeBookDetail() {
             .replace(/\*(.*?)\*/g, "<em>$1</em>");
 
     return (
-        <div className="page-wrap">
-            {/* ── MODAL ── */}
-            {activeModule && (
-                <div className="modal-overlay" onClick={closeModal}>
-                    <div className="lesson-modal" onClick={e => e.stopPropagation()}>
-                        <button className="close-btn" onClick={closeModal}>×</button>
+        <SubscriberLock title={`${syllabus.bookTitle} Access`} featureName={`Class ${grade} Curriculum`}>
+            <div className="page-wrap">
+                {/* ── MODAL ── */}
+                {activeModule && (
+                    <div className="modal-overlay" onClick={closeModal}>
+                        <div className="lesson-modal" onClick={e => e.stopPropagation()}>
+                            <button className="close-btn" onClick={closeModal}>×</button>
 
-                        {/* Header bar */}
-                        <div className="modal-topbar">
-                            <span className="modal-tag">Class {grade} · {activeModule.month}</span>
-                            <div className="modal-tabs">
-                                <button className={`tab-btn ${!inTest ? "active" : ""}`} onClick={() => setInTest(false)}>📖 Lesson</button>
-                                {questions.length > 0 && (
-                                    <button className={`tab-btn ${inTest ? "active" : ""}`} onClick={() => { setInTest(true); setTestSubmitted(false); setTestAnswers({}); }}>📝 Unit Test</button>
-                                )}
+                            {/* Header bar */}
+                            <div className="modal-topbar">
+                                <span className="modal-tag">Class {grade} · {activeModule.month}</span>
+                                <div className="modal-tabs">
+                                    <button className={`tab-btn ${!inTest ? "active" : ""}`} onClick={() => setInTest(false)}>📖 Lesson</button>
+                                    {questions.length > 0 && (
+                                        <button className={`tab-btn ${inTest ? "active" : ""}`} onClick={() => { setInTest(true); setTestSubmitted(false); setTestAnswers({}); }}>📝 Unit Test</button>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
@@ -198,8 +201,7 @@ export default function GradeBookDetail() {
                             </div>
                         )}
                     </div>
-                </div>
-            )}
+                )}
 
             {/* ── PAGE HEADER ── */}
             <Link href="/library" className="back-link">← Return to Library</Link>
@@ -270,6 +272,7 @@ export default function GradeBookDetail() {
                     </div>
                 </aside>
             </div>
+        </div>
 
             <style jsx>{`
         .page-wrap{display:flex;flex-direction:column;gap:2rem;}
@@ -382,6 +385,6 @@ export default function GradeBookDetail() {
 
         @media(max-width:900px){.syllabus-grid{grid-template-columns:1fr;}.options-grid{grid-template-columns:1fr;}.page-header{flex-direction:column;}}
       `}</style>
-        </div>
+        </SubscriberLock>
     );
 }

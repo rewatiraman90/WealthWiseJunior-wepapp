@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { useState, useEffect } from "react";
 
 const stats = [
@@ -87,6 +88,14 @@ export default function ParentLandingPage() {
 
   return (
     <div className="parent-page">
+      {/* ══ HEADER ══ */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
+          <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
+        </div>
+        <Link href="/" className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>Student Login</Link>
+      </header>
+
       {/* ══ HERO ══ */}
       <section className="hero-section">
         <div className="hero-inner">
@@ -199,10 +208,10 @@ export default function ParentLandingPage() {
         <h2 className="section-title gradient-text">Simple for children. Profound for life.</h2>
         <div className="how-grid">
           {[
-            { step: "01", icon: "📖", title: "One lesson per month", body: "Each month has 2-3 story-based steps. Your child reads a short story, learns the concept, and gets a 'Did You Know?' fact about India's real economy." },
-            { step: "02", icon: "🏠", title: "Home Activity", body: "Every lesson ends with a real-world Home Activity. Tracking pocket money. Interviewing a parent about their first salary. Comparing prices at 3 shops. Learning by doing, not studying." },
-            { step: "03", icon: "☀️", title: "Summer Earning Month", body: "June and July are Summer Activity months — your child designs and executes a real (small) money-earning experiment with your guidance. This one activity changes their self-concept forever." },
-            { step: "04", icon: "📝", title: "Monthly Unit Test", body: "5 MCQ questions per month with explanations. Not a scary exam — a learning check. All answers are explained immediately with depth, so wrong answers teach better than right ones." },
+            { step: "01", icon: "📚", title: "Unified Learning Library", body: "A structured, month-by-month curriculum. We combine animated video classes, theory notes, and quizzes directly into one seamless Class 5–12 roadmap." },
+            { step: "02", icon: "👨‍🏫", title: "24/7 AI Mentor 'Sir'", body: "Our unique voice-enabled AI tutor 'Sir' answers questions anytime. Fully moderated for appropriate language and strictly aligned with the syllabus." },
+            { step: "03", icon: "📱", title: "Parent Dashboard Alerts", body: "Access real-time progress on your dashboard. You receive immediate alerts on test scores, completed milestones, and AI moderation warnings if inappropriate language is used." },
+            { step: "04", icon: "🔓", title: "Premium Subscriber Access", body: "Get full access to all classes, unit tests, the Activity Lab, and the City Leaderboards with the verified blue-tick Roll Number badge." },
           ].map((h, i) => (
             <div key={i} className="how-card premium-glass">
               <div className="how-top">
@@ -291,6 +300,8 @@ export default function ParentLandingPage() {
         </Link>
         <p className="final-note">Classes 5 through 12 · All Indian curriculum · Regular monthly lessons + Unit tests</p>
       </section>
+
+      <Footer />
 
       <style jsx>{`
         .parent-page { padding-bottom: 0; background: transparent; }
