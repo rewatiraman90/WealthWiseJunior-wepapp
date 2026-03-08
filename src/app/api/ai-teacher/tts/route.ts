@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Initialize inside the handler to prevent build errors when env vars are missing
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,6 +17,10 @@ export async function POST(req: NextRequest) {
         { status: 500 }
       );
     }
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
 
     // Truncate very long text for TTS
     const truncated = text.slice(0, 1000);
