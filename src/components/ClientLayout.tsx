@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabaseClient";
 
 const navLinks = [
   { href: "/", icon: "🏠", label: "Home" },
@@ -47,7 +48,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     }
   }, [path, router]);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     localStorage.removeItem("wwj_profile");
     setProfile(null);
     router.push("/");

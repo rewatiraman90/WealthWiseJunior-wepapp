@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabaseClient';
 
 // City abbreviations for roll number
 const CITY_CODES: Record<string, string> = {
@@ -25,24 +26,57 @@ export default function OnboardingPage() {
   const [formData, setFormData] = useState({
     name: '', age: '', grade: '', school: '', city: ''
   });
-  const [plan, setPlan] = useState<Plan>('subscriber'); // Changed default to subscriber
+  const [plan, setPlan] = useState<Plan>('subscriber');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStep('plan');
   };
 
-  const handlePlanSubmit = (selectedPlan: Plan) => {
+  const handlePlanSubmit = async (selectedPlan: Plan) => {
+    setIsSubmitting(true);
+    setErrorMsg('');
     const rollNumber = generateRollNumber(formData.grade, formData.city);
     const isSubscriber = selectedPlan === 'subscriber';
-    const profile = {
-      ...formData,
-      rollNumber,
-      isSubscriber,
-      joinedDate: new Date().toISOString(),
-    };
-    localStorage.setItem('wwj_profile', JSON.stringify(profile));
-    router.push('/');
+    
+    try {
+      // 1. Create an anonymous user session in Supabase so they have an auth.uid()
+      const { data: authData, error: authError } = await supabase.auth.signInAnonymously();
+      
+      if (authError || !authData.user) {
+        throw new Error(authError?.message || 'Failed to create account session.');
+      }
+
+      // 2. Insert the profile data into our new profiles table
+      const profile = {
+        id: authData.user.id,
+        name: formData.name,
+        age: parseInt(formData.age),
+        grade: formData.grade,
+        school: formData.school,
+        city: formData.city,
+        roll_number: rollNumber,
+        is_subscriber: isSubscriber,
+      };
+
+      const { error: insertError } = await supabase
+        .from('profiles')
+        .insert([profile]);
+
+      if (insertError) {
+        throw new Error(insertError.message || 'Failed to save profile data.');
+      }
+
+      // 3. Keep local storage for instantaneous UI rendering, but now it's backed by DB
+      localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber }));
+      
+      router.push('/');
+    } catch (err: any) {
+      setErrorMsg(err.message);
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -154,8 +188,13 @@ export default function OnboardingPage() {
           </div>
 
           <div className="plan-actions">
-            <button className="ob-btn-primary pulse" onClick={() => handlePlanSubmit(plan)}>
-               Proceed to Subscribe →
+            {errorMsg && <div className="error-message" style={{ color: '#FF4466', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'center' }}>{errorMsg}</div>}
+            <button 
+              className="ob-btn-primary pulse" 
+              onClick={() => handlePlanSubmit(plan)}
+              disabled={isSubmitting}
+            >
+               {isSubmitting ? 'Creating Profile...' : 'Proceed to Subscribe →'}
             </button>
           </div>
         </div>
