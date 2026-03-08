@@ -23,7 +23,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   // Define public routes that don't need authentication
   const publicRoutes = ["/", "/parent", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
   const isPublicRoute = publicRoutes.includes(path);
-  const isLandingPage = path === "/parent" || path === "/";
+  const isLandingPage = path === "/parent" || path === "/" || path === "/onboarding";
 
   // Read student profile from localStorage
   const [profile, setProfile] = useState<{
@@ -56,7 +56,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   };
 
   const firstName = profile?.name?.split(' ')[0] || 'Student';
-  const avatarImage = profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.name || 'Aaryan')}`;
+  const avatarImage = profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.name || firstName)}`;
 
   // Prevent flash of private content during auth check
   if (isLooingForAuth && !isPublicRoute) {

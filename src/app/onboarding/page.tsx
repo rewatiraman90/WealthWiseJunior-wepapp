@@ -51,7 +51,7 @@ export default function OnboardingPage() {
 
       if (profile) {
         // Logged in and profile exists. Save to local storage for instant UI sync and redirect.
-        localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number }));
+        localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number, avatar: profile.avatar_url }));
         router.push('/campus');
       } else {
         // Logged in but no profile. Let's pre-fill name if available.

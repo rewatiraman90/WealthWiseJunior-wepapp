@@ -109,29 +109,31 @@ export default function CampusDashboard() {
       {/* ── HERO ── */}
       <div className="campus-hero">
         <div>
-          <p className="campus-eyebrow">Good Evening, Aaryan 👋</p>
+          <p className="campus-eyebrow">
+            {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'}, {profile?.name?.split(' ')[0] || 'Student'} 👋
+          </p>
           <h1 className="gradient-text campus-h1">MoneyMind Campus</h1>
-          <p className="campus-subtitle">Class 8 · Semester 2 · Financial Intelligence Academy</p>
+          <p className="campus-subtitle">Class {profile?.grade || '8'} · Module 1 · Financial Intelligence Academy</p>
         </div>
         <div className="campus-kpis">
           <div className="kpi-pill premium-glass">
             <span className="kpi-icon">🔥</span>
             <div className="kpi-body">
-              <span className="kpi-val">21</span>
+              <span className="kpi-val">0</span>
               <span className="kpi-lbl">Day Streak</span>
             </div>
           </div>
           <div className="kpi-pill premium-glass">
             <span className="kpi-icon">🏆</span>
             <div className="kpi-body">
-              <span className="kpi-val">#4</span>
+              <span className="kpi-val">Unranked</span>
               <span className="kpi-lbl">Class Rank</span>
             </div>
           </div>
           <div className="kpi-pill premium-glass">
             <span className="kpi-icon">💎</span>
             <div className="kpi-body">
-              <span className="kpi-val">12,450</span>
+              <span className="kpi-val">0</span>
               <span className="kpi-lbl">WealthPoints</span>
             </div>
           </div>
@@ -142,16 +144,16 @@ export default function CampusDashboard() {
       <div className="progress-strip premium-glass">
         <div className="ps-label">
           <span className="ps-title">Annual Syllabus Progress</span>
-          <span className="ps-pct gradient-text">64%</span>
+          <span className="ps-pct gradient-text">0%</span>
         </div>
         <div className="ps-track">
-          <div className="ps-fill" />
-          <div className="ps-dot" style={{ left: "64%" }} />
+          <div className="ps-fill" style={{ width: "0%" }} />
+          <div className="ps-dot" style={{ left: "0%" }} />
         </div>
         <div className="ps-meta">
-          <span>March – Compound Interest ✅</span>
-          <span className="ps-curr">📍 April – Inflation (In Progress)</span>
-          <span>May – onward 🔒</span>
+          <span>Module 1 – Start</span>
+          <span className="ps-curr">📍 Module 1 (In Progress)</span>
+          <span>Module 2 🔒</span>
         </div>
       </div>
 

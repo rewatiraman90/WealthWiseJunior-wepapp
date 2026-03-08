@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, ChangeEvent } from "react";
 import { StudentProfile } from "@/hooks/useProfile";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function ProfilePage() {
   const router = useRouter();
@@ -51,11 +52,22 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Persist to Supabase so it survives re-login
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      await supabase.from('profiles').update({
+        name: profile.name,
+        grade: profile.grade,
+        city: profile.city,
+        school: profile.school,
+        avatar_url: profile.avatar || null,
+      }).eq('id', user.id);
+    }
+    // Also update localStorage for instant UI sync
     localStorage.setItem("wwj_profile", JSON.stringify(profile));
-    alert("Profile picture and details saved successfully!");
-    // Give layout time to react or manually reload
+    alert("Profile saved successfully!");
     window.location.reload();
   };
 
