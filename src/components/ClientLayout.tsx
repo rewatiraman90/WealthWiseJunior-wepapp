@@ -31,6 +31,7 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     rollNumber: string; isSubscriber: boolean; avatar?: string;
   } | null>(null);
   const [isLooingForAuth, setIsLookingForAuth] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     let storedProfile = null;
@@ -41,6 +42,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 
     setProfile(storedProfile);
     setIsLookingForAuth(false);
+
+    // Check if admin
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (user?.email === 'rayraman90@gmail.com') setIsAdmin(true);
+    });
 
     // If on a private route and no profile, redirect to home
     if (!storedProfile && !publicRoutes.includes(window.location.pathname)) {
@@ -83,6 +89,14 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
                   </Link>
                 </li>
               ))}
+              {isAdmin && (
+                <li className={path === '/admin' ? 'active' : ''} style={{ marginTop: '0.5rem', borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '0.5rem' }}>
+                  <Link href="/admin">
+                    <span className="nav-icon">🛡️</span>
+                    <span>Admin Panel</span>
+                  </Link>
+                </li>
+              )}
             </ul>
           </nav>
 
