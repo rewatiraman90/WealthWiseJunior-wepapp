@@ -321,7 +321,7 @@ export default function ParentLandingPage() {
       <Footer />
 
       <style jsx>{`
-        .parent-page { padding-bottom: 0; background: transparent; }
+        .parent-page { padding-bottom: 0; background: #F0F4FF; font-family: 'Plus Jakarta Sans', sans-serif; }
 
         /* HERO */
         .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; min-height: 90vh; padding: 5rem 7vw 4rem; max-width: 1400px; margin: 0 auto; }
@@ -425,16 +425,16 @@ export default function ParentLandingPage() {
         .final-note { margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); font-weight: 600; position: relative; z-index: 1; }
 
         /* ══ PREMIUM NAV & HERO OVERRIDES ══ */
-        .pp-nav { position: sticky; top: 0; z-index: 100; background: rgba(5,8,22,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(108,99,255,0.15); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .pp-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(108,99,255,0.1); font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 2px 20px rgba(0,0,0,0.06); }
         .pp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
         .pp-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.03em; }
-        .pp-logo-w { color: white; }
-        .pp-logo-jr { color: var(--gold); margin-left: 2px; }
+        .pp-logo-w { color: #0B1437; }
+        .pp-logo-jr { color: var(--primary); margin-left: 2px; }
         .pp-nav-links { display: flex; align-items: center; gap: 1.5rem; }
-        .pp-nav-link { color: rgba(255,255,255,0.55); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
-        .pp-nav-link:hover { color: white; }
-        .pp-btn-nav { background: linear-gradient(135deg, var(--gold), #E8961E); color: var(--lp-navy); padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.88rem; font-weight: 900; text-decoration: none; transition: all 0.2s; }
-        .pp-btn-nav:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(244,165,53,0.3); }
+        .pp-nav-link { color: #5A6891; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
+        .pp-nav-link:hover { color: #0B1437; }
+        .pp-btn-nav { background: #0B1437; color: white; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.88rem; font-weight: 800; text-decoration: none; transition: all 0.2s; }
+        .pp-btn-nav:hover { background: var(--primary); transform: translateY(-1px); }
 
         .pp-hero-tag { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(244,165,53,0.12); border: 1px solid rgba(244,165,53,0.3); color: var(--gold-light); font-size: 0.78rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; font-family: 'Plus Jakarta Sans', sans-serif; }
         .pp-tag-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse-dot 1.5s infinite; flex-shrink: 0; }
