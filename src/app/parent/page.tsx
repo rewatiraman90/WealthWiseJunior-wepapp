@@ -90,34 +90,26 @@ export default function ParentLandingPage() {
 
   return (
     <div className="parent-page">
-      {/* ══ NAV ══ */}
-      <nav className="pp-nav">
-        <div className="pp-nav-inner">
-          <div className="pp-logo">
-            <span className="pp-logo-w">WealthWise</span>
-            <span className="pp-logo-jr">Jr.</span>
-          </div>
-          <div className="pp-nav-links">
-            <Link href="/" className="pp-nav-link">For Students</Link>
-            <Link href="/contact" className="pp-nav-link">Contact</Link>
-            <Link href={hasProfile ? "/campus" : "/onboarding"} className="pp-btn-nav">
-              {hasProfile ? "Go to Campus →" : "Enrol Now →"}
-            </Link>
-          </div>
+      {/* ══ HEADER ══ */}
+      <header style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+        <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
+          <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
         </div>
-      </nav>
+        <Link href={hasProfile ? "/campus" : "/onboarding"} className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>
+          {hasProfile ? "Go to Campus" : "Student Login"}
+        </Link>
+      </header>
 
       {/* ══ HERO ══ */}
       <section className="hero-section">
         <div className="hero-inner">
-          <div className="pp-hero-tag">
-            <span className="pp-tag-dot" />
+          <div className="hero-badge">
             <span>🇮🇳 Made for Indian School Children</span>
           </div>
-          <h1 className="pp-hero-h1">
+          <h1 className="hero-title">
             Your child will spend<br />
-            <span className="pp-hero-grad">40 years managing money.</span><br />
-            <span className="pp-hero-sub-title">School will teach them zero about it.</span>
+            <span className="gradient-text">40 years managing money.</span><br />
+            <span className="hero-sub-title">School will teach them zero about it.</span>
           </h1>
           <p className="hero-body">
             In India, children spend 12+ years learning algebra, history, and biology.
@@ -126,16 +118,11 @@ export default function ParentLandingPage() {
             <strong>WealthWise Junior fills that gap — one story, one lesson, one unit test per month.</strong>
             Class 5 to Class 12. Progressively deeper every year.
           </p>
-          <div className="pp-hero-actions">
-            <Link href="/onboarding" className="pp-btn-primary">Enrol Your Child Now →</Link>
-            <Link href="/classes" className="pp-btn-ghost">See the Curriculum</Link>
+          <div className="hero-ctas">
+            <Link href="/onboarding" className="btn-neon">Start Your Child's Journey →</Link>
+            <Link href="/classes" className="btn-outline">See the Curriculum</Link>
           </div>
-          <p className="hero-note">Secure checkout · Cancel anytime · Parent dashboard included</p>
-          <div className="pp-trust-row">
-            {["🔒 SSL Secured", "🛡️ Data Private", "📚 CBSE Aligned", "✅ Safe for Kids", "🏦 NCFE Concepts"].map(b => (
-              <span key={b} className="pp-trust-pill">{b}</span>
-            ))}
-          </div>
+          <p className="hero-note">Free to start · No credit card required · Parent dashboard included</p>
         </div>
         <div className="hero-visual float">
           <div className="hero-card-stack">
@@ -321,29 +308,17 @@ export default function ParentLandingPage() {
       <Footer />
 
       <style jsx>{`
-        /* ═══ ROOT: Override dark-theme vars for this light-background page ═══ */
-        .parent-page {
-          padding-bottom: 0;
-          background: #F0F4FF;
-          font-family: 'Plus Jakarta Sans', sans-serif;
-          /* Override global dark theme vars so all inherited text is dark */
-          --foreground: #1A2252;
-          --muted: #4A5A85;
-          --border: rgba(26,34,82,0.1);
-          --card: rgba(255,255,255,0.9);
-          --card-border: rgba(108,99,255,0.15);
-          color: #1A2252;
-        }
+        .parent-page { padding-bottom: 0; background: transparent; }
 
-
+        /* HERO */
         .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; min-height: 90vh; padding: 5rem 7vw 4rem; max-width: 1400px; margin: 0 auto; }
-        .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: 2rem; background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25); font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem; }
-        .hero-title { font-size: clamp(2.2rem, 4vw, 3.8rem); line-height: 1.1; margin-bottom: 1.5rem; color: #0B1437; }
-        .hero-sub-title { display: block; font-size: 0.7em; color: #5A6891; font-weight: 600; margin-top: 0.5rem; }
-        .hero-body { font-size: 1.05rem; color: #3D4E7A; line-height: 1.8; margin-bottom: 2.5rem; max-width: 540px; }
-        .hero-body strong { color: #0B1437; }
+        .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: 2rem; background: rgba(108,99,255,0.12); border: 1px solid rgba(108,99,255,0.3); font-size: 0.8rem; font-weight: 700; color: var(--primary-glow); margin-bottom: 1.5rem; }
+        .hero-title { font-size: clamp(2.2rem, 4vw, 3.8rem); line-height: 1.1; margin-bottom: 1.5rem; color: var(--foreground); }
+        .hero-sub-title { display: block; font-size: 0.7em; color: var(--muted); font-weight: 600; margin-top: 0.5rem; }
+        .hero-body { font-size: 1.05rem; color: var(--muted); line-height: 1.8; margin-bottom: 2.5rem; max-width: 540px; }
+        .hero-body strong { color: var(--foreground); }
         .hero-ctas { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.2rem; }
-        .hero-note { font-size: 0.8rem; color: #5A6891; font-weight: 600; }
+        .hero-note { font-size: 0.8rem; color: var(--muted); font-weight: 600; }
         .hero-visual { display: flex; justify-content: center; align-items: center; position: relative; }
         .hero-card-stack { position: relative; width: 320px; height: 380px; }
         .hcs-card { position: absolute; display: flex; flex-direction: column; gap: 0.4rem; padding: 1.4rem 1.6rem; border-radius: 1.5rem; width: 220px; }
@@ -356,18 +331,18 @@ export default function ParentLandingPage() {
         .hcs-glow { position: absolute; inset: -30%; background: radial-gradient(circle, rgba(108,99,255,0.15), transparent 70%); pointer-events: none; }
 
         /* STAT BAR */
-        .stat-bar { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border-top: 1px solid rgba(108,99,255,0.1); border-bottom: 1px solid rgba(108,99,255,0.1); background: white; }
-        .stat-tile { padding: 2rem 2.5rem; border-right: 1px solid rgba(108,99,255,0.08); }
+        .stat-bar { display: grid; grid-template-columns: repeat(4,1fr); gap: 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: rgba(14,22,56,0.5); backdrop-filter: blur(12px); }
+        .stat-tile { padding: 2rem 2.5rem; border-right: 1px solid var(--border); }
         .stat-tile:last-child { border-right: none; }
         .stat-num { font-size: 2.8rem; font-weight: 900; line-height: 1; margin-bottom: 0.4rem; }
-        .stat-label { font-size: 0.9rem; font-weight: 700; color: #1A2252; line-height: 1.4; margin-bottom: 0.3rem; }
-        .stat-note { font-size: 0.7rem; color: #5A6891; font-weight: 600; }
+        .stat-label { font-size: 0.9rem; font-weight: 700; color: var(--foreground); line-height: 1.4; margin-bottom: 0.3rem; }
+        .stat-note { font-size: 0.7rem; color: var(--muted); font-weight: 600; }
 
         /* SECTIONS */
         .section { padding: 6rem 7vw; max-width: 1400px; margin: 0 auto; }
         .section-tag { display: inline-block; padding: 0.35rem 1rem; border-radius: 2rem; font-size: 0.72rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 1.2rem; }
-        .section-title { font-size: clamp(1.8rem, 3vw, 2.8rem); margin-bottom: 1rem; line-height: 1.2; color: #0B1437; }
-        .section-sub { font-size: 1rem; color: #3D4E7A; font-weight: 500; max-width: 700px; margin-bottom: 3rem; line-height: 1.7; }
+        .section-title { font-size: clamp(1.8rem, 3vw, 2.8rem); margin-bottom: 1rem; line-height: 1.2; }
+        .section-sub { font-size: 1rem; color: var(--muted); font-weight: 500; max-width: 700px; margin-bottom: 3rem; line-height: 1.7; }
 
         /* FEAR */
         .fear-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
@@ -375,19 +350,19 @@ export default function ParentLandingPage() {
         .fear-top { display: flex; justify-content: space-between; align-items: flex-start; }
         .fear-icon { font-size: 2rem; }
         .fear-stat { font-size: 0.7rem; font-weight: 900; padding: 0.25rem 0.7rem; border-radius: 2rem; background: rgba(255,68,102,0.12); color: #FF6680; border: 1px solid rgba(255,68,102,0.25); white-space: nowrap; }
-        .fear-heading { font-size: 1.05rem; font-weight: 800; color: #1A2252; line-height: 1.35; }
-        .fear-body { font-size: 0.87rem; color: #4A5A85; line-height: 1.7; font-weight: 500; }
+        .fear-heading { font-size: 1.05rem; font-weight: 800; color: var(--foreground); line-height: 1.35; }
+        .fear-body { font-size: 0.87rem; color: var(--muted); line-height: 1.7; font-weight: 500; }
 
         /* SYLLABUS */
         .syllabus-grid-wrap { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; }
         .syllabus-card { padding: 1.8rem; border-radius: 1.75rem; display: flex; flex-direction: column; gap: 0.8rem; }
         .slc-header { display: flex; align-items: center; gap: 1rem; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border); }
         .slc-icon { font-size: 2rem; }
-        .slc-grade { font-size: 1.1rem; font-weight: 900; color: #1A2252; }
-        .slc-age { font-size: 0.75rem; color: #4A5A85; font-weight: 700; }
-        .slc-title { font-size: 1rem; font-weight: 800; color: var(--primary); }
+        .slc-grade { font-size: 1.1rem; font-weight: 900; color: var(--foreground); }
+        .slc-age { font-size: 0.75rem; color: var(--muted); font-weight: 700; }
+        .slc-title { font-size: 1rem; font-weight: 800; color: var(--primary-glow); }
         .slc-list { list-style: none; display: flex; flex-direction: column; gap: 0.5rem; flex: 1; }
-        .slc-list li { font-size: 0.82rem; color: #4A5A85; font-weight: 500; display: flex; gap: 0.5rem; line-height: 1.4; }
+        .slc-list li { font-size: 0.82rem; color: var(--muted); font-weight: 500; display: flex; gap: 0.5rem; line-height: 1.4; }
         .slc-dot { color: var(--neon-green); font-weight: 900; flex-shrink: 0; }
         .slc-btn { margin-top: 0.5rem; display: block; text-align: center; font-size: 0.8rem; }
 
@@ -395,10 +370,10 @@ export default function ParentLandingPage() {
         .how-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 1.5rem; }
         .how-card { padding: 2rem; border-radius: 1.75rem; }
         .how-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
-        .how-step { font-size: 0.65rem; font-weight: 900; color: var(--primary); letter-spacing: 0.15em; font-family: 'Space Mono', monospace; }
+        .how-step { font-size: 0.65rem; font-weight: 900; color: var(--primary-glow); letter-spacing: 0.15em; font-family: 'Space Mono', monospace; }
         .how-icon { font-size: 1.8rem; }
-        .how-title { font-size: 1rem; font-weight: 800; color: #1A2252; margin-bottom: 0.8rem; }
-        .how-body { font-size: 0.85rem; color: #4A5A85; line-height: 1.7; font-weight: 500; }
+        .how-title { font-size: 1rem; font-weight: 800; color: var(--foreground); margin-bottom: 0.8rem; }
+        .how-body { font-size: 0.85rem; color: var(--muted); line-height: 1.7; font-weight: 500; }
 
         /* COMPARE */
         .compare-section { padding: 6rem 7vw; max-width: 1400px; margin: 0 auto; }
@@ -406,18 +381,18 @@ export default function ParentLandingPage() {
         .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
         .compare-col { display: flex; flex-direction: column; gap: 0; }
         .compare-header { font-size: 0.85rem; font-weight: 900; padding: 0.7rem 1rem; border-radius: 0.75rem 0.75rem 0 0; background: rgba(255,68,102,0.08); color: #FF4466; margin-bottom: 0; }
-        .compare-row { padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 500; color: #4A5A85; border-bottom: 1px solid rgba(26,34,82,0.08); }
-        .compare-row-good { color: #1A2252; }
+        .compare-row { padding: 0.75rem 1rem; font-size: 0.85rem; font-weight: 500; color: var(--muted); border-bottom: 1px solid var(--border); }
+        .compare-row-good { color: var(--foreground); }
 
         /* TESTIMONIALS */
         .testimonial-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; }
         .testimonial-card { padding: 2rem; border-radius: 1.75rem; }
         .t-stars { color: var(--accent2); font-size: 1rem; margin-bottom: 1rem; letter-spacing: 0.1em; }
-        .t-quote { font-size: 0.95rem; color: #1A2252; font-weight: 500; line-height: 1.7; margin-bottom: 1.5rem; font-style: italic; }
+        .t-quote { font-size: 0.95rem; color: var(--foreground); font-weight: 500; line-height: 1.7; margin-bottom: 1.5rem; font-style: italic; }
         .t-author { display: flex; align-items: center; gap: 0.75rem; }
         .t-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg,var(--primary),var(--neon-green)); display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1rem; color: white; flex-shrink: 0; }
-        .t-name { font-size: 0.9rem; font-weight: 800; color: #1A2252; }
-        .t-detail { font-size: 0.75rem; color: #4A5A85; font-weight: 600; }
+        .t-name { font-size: 0.9rem; font-weight: 800; color: var(--foreground); }
+        .t-detail { font-size: 0.75rem; color: var(--muted); font-weight: 600; }
 
         /* FAQ */
         .faq-section { max-width: 800px; }
@@ -425,42 +400,16 @@ export default function ParentLandingPage() {
         .faq-item { padding: 1.4rem 1.8rem; border-radius: 1.25rem; cursor: pointer; transition: all 0.25s; }
         .faq-item:hover { border-color: rgba(108,99,255,0.4) !important; }
         .faq-item.faq-open { border-color: rgba(108,99,255,0.5) !important; background: rgba(108,99,255,0.06) !important; }
-        .faq-q { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.97rem; color: #1A2252; }
-        .faq-arrow { color: var(--primary); font-size: 1.1rem; flex-shrink: 0; margin-left: 1rem; }
-        .faq-a { margin-top: 1rem; font-size: 0.9rem; color: #4A5A85; line-height: 1.8; font-weight: 500; }
+        .faq-q { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 0.97rem; color: var(--foreground); }
+        .faq-arrow { color: var(--primary-glow); font-size: 1.1rem; flex-shrink: 0; margin-left: 1rem; }
+        .faq-a { margin-top: 1rem; font-size: 0.9rem; color: var(--muted); line-height: 1.8; font-weight: 500; }
 
         /* FINAL CTA */
         .final-cta { position: relative; text-align: center; padding: 8rem 2rem; overflow: hidden; border-top: 1px solid var(--border); }
         .final-glow { position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(108,99,255,0.15) 0%, transparent 70%); pointer-events: none; }
         .final-title { font-size: clamp(2rem,4vw,3.5rem); line-height: 1.2; margin-bottom: 1.2rem; position: relative; z-index: 1; }
-        .final-sub { font-size: 1.05rem; color: #4A5A85; max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; z-index: 1; font-weight: 500; }
-        .final-note { margin-top: 1.5rem; font-size: 0.8rem; color: #4A5A85; font-weight: 600; position: relative; z-index: 1; }
-
-        /* ══ PREMIUM NAV & HERO OVERRIDES ══ */
-        .pp-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.96); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(108,99,255,0.1); font-family: 'Plus Jakarta Sans', sans-serif; box-shadow: 0 2px 20px rgba(0,0,0,0.06); }
-        .pp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .pp-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.03em; }
-        .pp-logo-w { color: #0B1437; }
-        .pp-logo-jr { color: var(--primary); margin-left: 2px; }
-        .pp-nav-links { display: flex; align-items: center; gap: 1.5rem; }
-        .pp-nav-link { color: #5A6891; text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
-        .pp-nav-link:hover { color: #0B1437; }
-        .pp-btn-nav { background: #0B1437; color: white; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.88rem; font-weight: 800; text-decoration: none; transition: all 0.2s; }
-        .pp-btn-nav:hover { background: var(--primary); transform: translateY(-1px); }
-
-        .pp-hero-tag { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(244,165,53,0.12); border: 1px solid rgba(244,165,53,0.3); color: var(--gold-light); font-size: 0.78rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .pp-tag-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse-dot 1.5s infinite; flex-shrink: 0; }
-        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .pp-hero-h1 { font-size: clamp(2.3rem, 4.5vw, 3.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .pp-hero-grad { background: linear-gradient(135deg, var(--gold), #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; }
-        .pp-hero-sub-title { color: #1A2252; font-size: 0.85em; font-weight: 700; display: block; margin-top: 0.3rem; }
-        .pp-hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-        .pp-btn-primary { background: linear-gradient(135deg, var(--gold), #E8961E); color: var(--lp-navy); padding: 0.9rem 2.2rem; border-radius: 2rem; font-weight: 900; font-size: 1rem; text-decoration: none; transition: all 0.25s; font-family: 'Plus Jakarta Sans', sans-serif; display: inline-block; }
-        .pp-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(244,165,53,0.4); }
-        .pp-btn-ghost { border: 1.5px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); padding: 0.9rem 2rem; border-radius: 2rem; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all 0.25s; font-family: 'Plus Jakarta Sans', sans-serif; display: inline-block; }
-        .pp-btn-ghost:hover { border-color: rgba(255,255,255,0.5); color: white; }
-        .pp-trust-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
-        .pp-trust-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 2rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .final-sub { font-size: 1.05rem; color: var(--muted); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; z-index: 1; font-weight: 500; }
+        .final-note { margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); font-weight: 600; position: relative; z-index: 1; }
 
         @media(max-width: 1100px) {
           .fear-grid { grid-template-columns: 1fr 1fr; }
@@ -477,10 +426,8 @@ export default function ParentLandingPage() {
           .section, .compare-section { padding: 4rem 1.5rem; }
           .compare-box { padding: 2rem; }
           .final-cta { padding: 5rem 1.5rem; }
-          .pp-nav-link { display: none; }
         }
       `}</style>
     </div>
   );
 }
-
