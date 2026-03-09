@@ -90,26 +90,34 @@ export default function ParentLandingPage() {
 
   return (
     <div className="parent-page">
-      {/* ══ HEADER ══ */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
-          <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
+      {/* ══ NAV ══ */}
+      <nav className="pp-nav">
+        <div className="pp-nav-inner">
+          <div className="pp-logo">
+            <span className="pp-logo-w">WealthWise</span>
+            <span className="pp-logo-jr">Jr.</span>
+          </div>
+          <div className="pp-nav-links">
+            <Link href="/" className="pp-nav-link">For Students</Link>
+            <Link href="/contact" className="pp-nav-link">Contact</Link>
+            <Link href={hasProfile ? "/campus" : "/onboarding"} className="pp-btn-nav">
+              {hasProfile ? "Go to Campus →" : "Enrol Now →"}
+            </Link>
+          </div>
         </div>
-        <Link href={hasProfile ? "/campus" : "/onboarding"} className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>
-          {hasProfile ? "Go to Campus" : "Student Login"}
-        </Link>
-      </header>
+      </nav>
 
       {/* ══ HERO ══ */}
       <section className="hero-section">
         <div className="hero-inner">
-          <div className="hero-badge">
+          <div className="pp-hero-tag">
+            <span className="pp-tag-dot" />
             <span>🇮🇳 Made for Indian School Children</span>
           </div>
-          <h1 className="hero-title">
+          <h1 className="pp-hero-h1">
             Your child will spend<br />
-            <span className="gradient-text">40 years managing money.</span><br />
-            <span className="hero-sub-title">School will teach them zero about it.</span>
+            <span className="pp-hero-grad">40 years managing money.</span><br />
+            <span className="pp-hero-sub-title">School will teach them zero about it.</span>
           </h1>
           <p className="hero-body">
             In India, children spend 12+ years learning algebra, history, and biology.
@@ -118,11 +126,16 @@ export default function ParentLandingPage() {
             <strong>WealthWise Junior fills that gap — one story, one lesson, one unit test per month.</strong>
             Class 5 to Class 12. Progressively deeper every year.
           </p>
-          <div className="hero-ctas">
-            <Link href="/onboarding" className="btn-neon">Start Your Child's Journey →</Link>
-            <Link href="/classes" className="btn-outline">See the Curriculum</Link>
+          <div className="pp-hero-actions">
+            <Link href="/onboarding" className="pp-btn-primary">Enrol Your Child Now →</Link>
+            <Link href="/classes" className="pp-btn-ghost">See the Curriculum</Link>
           </div>
-          <p className="hero-note">Free to start · No credit card required · Parent dashboard included</p>
+          <p className="hero-note">Secure checkout · Cancel anytime · Parent dashboard included</p>
+          <div className="pp-trust-row">
+            {["🔒 SSL Secured", "🛡️ Data Private", "📚 CBSE Aligned", "✅ Safe for Kids", "🏦 NCFE Concepts"].map(b => (
+              <span key={b} className="pp-trust-pill">{b}</span>
+            ))}
+          </div>
         </div>
         <div className="hero-visual float">
           <div className="hero-card-stack">
@@ -411,6 +424,32 @@ export default function ParentLandingPage() {
         .final-sub { font-size: 1.05rem; color: var(--muted); max-width: 600px; margin: 0 auto 2.5rem; line-height: 1.7; position: relative; z-index: 1; font-weight: 500; }
         .final-note { margin-top: 1.5rem; font-size: 0.8rem; color: var(--muted); font-weight: 600; position: relative; z-index: 1; }
 
+        /* ══ PREMIUM NAV & HERO OVERRIDES ══ */
+        .pp-nav { position: sticky; top: 0; z-index: 100; background: rgba(5,8,22,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(108,99,255,0.15); font-family: 'Plus Jakarta Sans', sans-serif; }
+        .pp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .pp-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.03em; }
+        .pp-logo-w { color: white; }
+        .pp-logo-jr { color: var(--gold); margin-left: 2px; }
+        .pp-nav-links { display: flex; align-items: center; gap: 1.5rem; }
+        .pp-nav-link { color: rgba(255,255,255,0.55); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
+        .pp-nav-link:hover { color: white; }
+        .pp-btn-nav { background: linear-gradient(135deg, var(--gold), #E8961E); color: var(--lp-navy); padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.88rem; font-weight: 900; text-decoration: none; transition: all 0.2s; }
+        .pp-btn-nav:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(244,165,53,0.3); }
+
+        .pp-hero-tag { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(244,165,53,0.12); border: 1px solid rgba(244,165,53,0.3); color: var(--gold-light); font-size: 0.78rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .pp-tag-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse-dot 1.5s infinite; flex-shrink: 0; }
+        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .pp-hero-h1 { font-size: clamp(2.3rem, 4.5vw, 3.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -0.02em; margin-bottom: 1.25rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .pp-hero-grad { background: linear-gradient(135deg, var(--gold), #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: block; }
+        .pp-hero-sub-title { color: rgba(255,255,255,0.75); font-size: 0.85em; font-weight: 700; display: block; margin-top: 0.3rem; }
+        .pp-hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+        .pp-btn-primary { background: linear-gradient(135deg, var(--gold), #E8961E); color: var(--lp-navy); padding: 0.9rem 2.2rem; border-radius: 2rem; font-weight: 900; font-size: 1rem; text-decoration: none; transition: all 0.25s; font-family: 'Plus Jakarta Sans', sans-serif; display: inline-block; }
+        .pp-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(244,165,53,0.4); }
+        .pp-btn-ghost { border: 1.5px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); padding: 0.9rem 2rem; border-radius: 2rem; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all 0.25s; font-family: 'Plus Jakarta Sans', sans-serif; display: inline-block; }
+        .pp-btn-ghost:hover { border-color: rgba(255,255,255,0.5); color: white; }
+        .pp-trust-row { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .pp-trust-pill { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.5); font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 2rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+
         @media(max-width: 1100px) {
           .fear-grid { grid-template-columns: 1fr 1fr; }
           .syllabus-grid-wrap { grid-template-columns: 1fr 1fr; }
@@ -426,8 +465,10 @@ export default function ParentLandingPage() {
           .section, .compare-section { padding: 4rem 1.5rem; }
           .compare-box { padding: 2rem; }
           .final-cta { padding: 5rem 1.5rem; }
+          .pp-nav-link { display: none; }
         }
       `}</style>
     </div>
   );
 }
+

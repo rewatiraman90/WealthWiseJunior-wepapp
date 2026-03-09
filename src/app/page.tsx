@@ -1,351 +1,368 @@
 "use client";
 import Link from "next/link";
 import Footer from "@/components/Footer";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+
+function useCountUp(target: number, duration = 2000, start = false) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    if (!start) return;
+    let startTime: number | null = null;
+    const step = (ts: number) => {
+      if (!startTime) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      setCount(Math.floor(progress * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [start, target, duration]);
+  return count;
+}
+
+const FEATURES = [
+  { icon: "🎓", title: "CBSE-Aligned Curriculum", desc: "Financial concepts mapped to Class 5–12, taught through India-relevant examples like EMIs, NSE, and UPI." },
+  { icon: "🤖", title: "AI Teacher — Sir", desc: "Ask any money question, any time. Our AI teacher answers in plain language, 24/7, with no judgment." },
+  { icon: "🏆", title: "Gamified Rewards", desc: "Earn WealthPoints, XP, and a verified blue-tick Roll Number as you complete lessons and activities." },
+  { icon: "🧭", title: "Freedom GPS", desc: "A personalised roadmap helping students build skills and assets, not just degrees." },
+  { icon: "🧪", title: "Activity Lab", desc: "Real-world home activities: 3-Jar Method, Price-Point Hunt, Budget Challenges and more." },
+  { icon: "👪", title: "Parent Dashboard", desc: "Full visibility into what your child is learning, their streak, and their progress across modules." },
+];
+
+const TESTIMONIALS = [
+  {
+    name: "Priya Sharma", role: "Mother, Class 9 student",
+    city: "Bengaluru", avatar: "PS",
+    text: "My daughter now asks before every purchase, 'which jar does this come from?' That's priceless. WealthWise Junior actually changed her habits."
+  },
+  {
+    name: "Rohit Mehra", role: "Father, Class 7 student",
+    city: "Pune", avatar: "RM",
+    text: "Within a month my son understood what a mutual fund is. His school hasn't taught him that. This is the most practical education money can buy."
+  },
+  {
+    name: "Sunita Krishnan", role: "Mother, Class 11 student",
+    city: "Hyderabad", avatar: "SK",
+    text: "The AI teacher feature is brilliant — my daughter was embarrassed to ask her teacher about debt. She asks Sir everything. Game-changer."
+  },
+];
+
+const TRUST_BADGES = [
+  { icon: "🔒", label: "SSL Secured" },
+  { icon: "🛡️", label: "Data Private" },
+  { icon: "📚", label: "CBSE Aligned" },
+  { icon: "✅", label: "Safe for Kids" },
+  { icon: "🏦", label: "NCFE Concepts" },
+];
 
 export default function StudentLandingPage() {
   const [hasProfile, setHasProfile] = useState(false);
+  const [statsVisible, setStatsVisible] = useState(false);
+  const statsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setHasProfile(!!localStorage.getItem('wwj_profile'));
+    setHasProfile(!!localStorage.getItem("wwj_profile"));
+    const observer = new IntersectionObserver(([e]) => { if (e.isIntersecting) setStatsVisible(true); }, { threshold: 0.3 });
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
   }, []);
 
+  const students = useCountUp(12000, 2200, statsVisible);
+  const lessons = useCountUp(450, 2200, statsVisible);
+  const cities = useCountUp(28, 1800, statsVisible);
+
   return (
-    <div className="landing-page">
-      {/* ══ HEADER ══ */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', alignItems: 'center' }}>
-        <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
-          <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
+    <div className="lp-root">
+
+      {/* ══ NAV ══ */}
+      <nav className="lp-nav">
+        <div className="lp-nav-inner">
+          <div className="lp-logo">
+            <span className="lp-logo-w">WealthWise</span>
+            <span className="lp-logo-jr">Jr.</span>
+          </div>
+          <div className="lp-nav-links">
+            <Link href="/parent" className="lp-nav-link">For Parents</Link>
+            <Link href="/contact" className="lp-nav-link">Contact</Link>
+            <Link href={hasProfile ? "/campus" : "/onboarding"} className="lp-btn-nav">
+              {hasProfile ? "Go to Campus →" : "Start Learning →"}
+            </Link>
+          </div>
         </div>
-        <Link href={hasProfile ? "/campus" : "/onboarding"} className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>
-          {hasProfile ? "Go to Campus" : "Student Login"}
-        </Link>
-      </header>
+      </nav>
 
       {/* ══ HERO ══ */}
-      <section className="hero-section">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <span className="live-dot" /> <span>Real-world skills you won't learn in school</span>
+      <section className="lp-hero">
+        <div className="lp-hero-bg">
+          <div className="lp-hero-blob blob1" />
+          <div className="lp-hero-blob blob2" />
+          <div className="lp-hero-grid" />
+        </div>
+        <div className="lp-hero-content">
+          <div className="lp-hero-tag">
+            <span className="lp-tag-dot" />
+            The financial education school forgot to teach
           </div>
-          <h1 className="hero-title">
+          <h1 className="lp-hero-h1">
             Master Money.<br />
-            <span className="gradient-text">Build Your Empire.</span>
+            <span className="lp-hero-grad">Build Your Empire.</span>
           </h1>
-          <p className="hero-sub">
-            School teaches you how to work for money. WealthWise Junior teaches you how to make money work for you. Discover the cheat codes to wealth, earn real rewards, and unlock your Freedom GPS.
+          <p className="lp-hero-p">
+            India's smartest financial curriculum for Class 5–12. Interactive, gamified, and 
+            built around real money decisions your child faces every day.
           </p>
-          <div className="hero-actions">
-            <Link href="/onboarding" className="btn-neon pulse" style={{ fontSize: "1.1rem", padding: "1rem 2.5rem" }}>
+          <div className="lp-hero-actions">
+            <Link href="/onboarding" className="lp-btn-primary">
               Subscribe Now →
             </Link>
-            <Link href="/parent" className="btn-outline">
-              For Parents
+            <Link href="/parent" className="lp-btn-ghost">
+              For Parents ↗
             </Link>
           </div>
-          <div className="hero-stats">
-            <div className="h-stat">
-              <span className="hs-val">12,000+</span>
-              <span className="hs-lbl">Students Earning XP</span>
-            </div>
-            <div className="h-stat">
-              <span className="hs-val">Class 5-12</span>
-              <span className="hs-lbl">Tailored Curriculum</span>
-            </div>
+          <div className="lp-trust-row">
+            {TRUST_BADGES.map(b => (
+              <div key={b.label} className="lp-trust-pill">
+                <span>{b.icon}</span> {b.label}
+              </div>
+            ))}
           </div>
         </div>
-        <div className="hero-visual">
-          <div className="device-mockup premium-glass">
-            <div className="mockup-header">
-              <div className="dots">
-                <span className="dot r" /><span className="dot y" /><span className="dot g" />
-              </div>
-              <span className="mockup-title">WealthWise Jr. Campus</span>
-            </div>
-            <div className="mockup-body">
-              <div className="mk-card mk-1">
-                <span className="mk-icon">💎</span>
-                <div className="mk-info">
-                  <span className="mk-title">+500 WealthPoints</span>
-                  <span className="mk-sub">You completed: Compound Interest</span>
-                </div>
-              </div>
-              <div className="mk-card mk-2">
-                <span className="mk-icon">🏆</span>
-                <div className="mk-info">
-                  <span className="mk-title">Rank #4 Secured!</span>
-                  <span className="mk-sub">Bengaluru City Leaderboard</span>
-                </div>
-              </div>
-              <div className="mk-profile">
-                <div className="mk-avatar">A</div>
-                <div className="mk-info">
-                  <span className="mk-title">Aaryan K. <span className="blue-tick">✓</span></span>
-                  <span className="mk-sub">Monthly Subscriber</span>
-                </div>
-              </div>
-            </div>
+        <div className="lp-hero-card">
+          <div className="lp-card-header">
+            <div className="lp-card-logo">WealthWise<span>Jr.</span></div>
+            <span className="lp-card-badge">📅 Module 1</span>
           </div>
-          <div className="hero-glow" />
+          <div className="lp-card-lesson">
+            <div className="lp-lesson-tag">🔴 LIVE NOW</div>
+            <div className="lp-lesson-title">The Magic of Compounding</div>
+            <div className="lp-lesson-sub">Monday Class • Class 8</div>
+          </div>
+          <div className="lp-card-stats">
+            <div className="lp-cs"><span className="lp-cs-val" style={{ color: "#F4A535" }}>+250</span><span className="lp-cs-lbl">XP Earned</span></div>
+            <div className="lp-cs"><span className="lp-cs-val" style={{ color: "#00E5A0" }}>🔥 12</span><span className="lp-cs-lbl">Day Streak</span></div>
+            <div className="lp-cs"><span className="lp-cs-val">Class 8</span><span className="lp-cs-lbl">Grade</span></div>
+          </div>
+          <div className="lp-card-bar-wrap">
+            <span className="lp-card-bar-lbl">Semester Progress</span>
+            <div className="lp-card-bar-track">
+              <div className="lp-card-bar-fill" style={{ width: "42%" }} />
+            </div>
+            <span className="lp-card-bar-pct">42%</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ══ ANIMATED STATS ══ */}
+      <section className="lp-stats-strip" ref={statsRef}>
+        <div className="lp-stat-item">
+          <span className="lp-stat-val">{statsVisible ? students.toLocaleString("en-IN") : "0"}+</span>
+          <span className="lp-stat-lbl">Students Enrolled</span>
+        </div>
+        <div className="lp-stat-divider" />
+        <div className="lp-stat-item">
+          <span className="lp-stat-val">{statsVisible ? lessons : "0"}+</span>
+          <span className="lp-stat-lbl">Lessons Available</span>
+        </div>
+        <div className="lp-stat-divider" />
+        <div className="lp-stat-item">
+          <span className="lp-stat-val">{statsVisible ? cities : "0"}</span>
+          <span className="lp-stat-lbl">Cities Across India</span>
+        </div>
+        <div className="lp-stat-divider" />
+        <div className="lp-stat-item">
+          <span className="lp-stat-val">Class 5–12</span>
+          <span className="lp-stat-lbl">Tailored Curriculum</span>
         </div>
       </section>
 
       {/* ══ FEATURES ══ */}
-      <section className="features-section">
-        <h2 className="section-title text-center">
-          Why add WealthWise to your life?
-        </h2>
-        <p className="section-subtitle text-center">
-          It's not just another class. It's a game where you level up in real life.
-        </p>
-
-        <div className="features-grid">
-          <div className="feat-card premium-glass">
-            <div className="fc-icon">💰</div>
-            <h3 className="fc-title">Earn as you learn</h3>
-            <p className="fc-desc">
-              Complete Home Activities and Summer Projects to earn Virtual ₹ and XP. Build a streak, climb the city leaderboard, and prove you're the smartest investor in your school.
-            </p>
-          </div>
-          <div className="feat-card premium-glass">
-            <div className="fc-icon">🎓</div>
-            <h3 className="fc-title">Meet "Sir" — Your AI Mentor</h3>
-            <p className="fc-desc">
-              Got a doubt at 11 PM? "Sir" is our voice-enabled AI teacher. He's available 24/7 to explain complex money concepts simply, just like a personal tutor.
-            </p>
-            <div className="fc-tag">Voice Enabled 🎙️</div>
-          </div>
-          <div className="feat-card premium-glass">
-            <div className="fc-icon">🛡️</div>
-            <h3 className="fc-title">Get the Blue Tick ✓</h3>
-            <p className="fc-desc">
-              Become a Monthly Subscriber to unlock your official Roll Number and the prestigious Blue Tick profile badge, proving you are a committed wealth builder.
-            </p>
+      <section className="lp-section">
+        <div className="lp-section-inner">
+          <div className="lp-section-tag">✦ What You Get</div>
+          <h2 className="lp-section-h2">Everything school forgot to teach</h2>
+          <p className="lp-section-sub">A complete financial education system, not just a course. Built for Indian students, mapped to their grade and real life.</p>
+          <div className="lp-features-grid">
+            {FEATURES.map(f => (
+              <div key={f.title} className="lp-feature-card">
+                <span className="lp-feature-icon">{f.icon}</span>
+                <h3 className="lp-feature-title">{f.title}</h3>
+                <p className="lp-feature-desc">{f.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ══ AI TEACHER SHOWCASE ══ */}
-      <section className="ai-section">
-        <div className="ai-content">
-          <h2 className="section-title">
-            Never stay stuck.<br />
-            <span className="gradient-text">Ask Sir.</span>
-          </h2>
-          <p className="ai-desc">
-            Unlike schools where you might be afraid to ask questions, WealthWise Junior gives you an AI teacher who never judges. 
-            Talk to "Sir" about inflation, taxes, or even how to ask your parents for pocket money. He's smart, patient, and speaks your language.
-          </p>
-          <ul className="ai-features">
-            <li><span className="aif-icon">🗣️</span> Voice conversations driven by Google Gemini</li>
-            <li><span className="aif-icon">📚</span> Knows your exact Class syllabus and progress</li>
-            <li><span className="aif-icon">🛡️</span> Safe, moderated environment built for students</li>
-          </ul>
-          <Link href="/onboarding" className="btn-outline">
-            Meet Sir →
+      {/* ══ TESTIMONIALS ══ */}
+      <section className="lp-section lp-section-alt">
+        <div className="lp-section-inner">
+          <div className="lp-section-tag">✦ Parent Reviews</div>
+          <h2 className="lp-section-h2">What parents are saying</h2>
+          <div className="lp-testi-grid">
+            {TESTIMONIALS.map(t => (
+              <div key={t.name} className="lp-testi-card">
+                <div className="lp-testi-stars">★★★★★</div>
+                <p className="lp-testi-text">"{t.text}"</p>
+                <div className="lp-testi-author">
+                  <div className="lp-testi-avatar">{t.avatar}</div>
+                  <div>
+                    <div className="lp-testi-name">{t.name}</div>
+                    <div className="lp-testi-meta">{t.role} · {t.city}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ HOW IT WORKS ══ */}
+      <section className="lp-section">
+        <div className="lp-section-inner lp-hiw">
+          <div className="lp-section-tag">✦ Simple Start</div>
+          <h2 className="lp-section-h2">Up and running in 3 minutes</h2>
+          <div className="lp-steps">
+            {[
+              { n: "01", title: "Sign in with Google", desc: "No forms, no passwords. One tap and your child is in." },
+              { n: "02", title: "Choose Your Grade", desc: "Pick Class 5–12. The curriculum adapts to your level automatically." },
+              { n: "03", title: "Start Learning & Earning", desc: "Attend live classes, complete activities, earn WealthPoints." },
+            ].map(s => (
+              <div key={s.n} className="lp-step">
+                <div className="lp-step-num">{s.n}</div>
+                <h3 className="lp-step-title">{s.title}</h3>
+                <p className="lp-step-desc">{s.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CTA BANNER ══ */}
+      <section className="lp-cta">
+        <div className="lp-cta-inner">
+          <div className="lp-cta-tag">🔥 Limited Launch Pricing</div>
+          <h2 className="lp-cta-h2">Give your child the education money can't buy — but can teach.</h2>
+          <p className="lp-cta-sub">Join 12,000+ students already building their financial future. Cancel any time.</p>
+          <Link href="/onboarding" className="lp-btn-primary lp-btn-xl">
+            Subscribe Now →
           </Link>
-        </div>
-        <div className="ai-visual">
-          <div className="ai-chat-mockup premium-glass">
-            <div className="chat-bubble student">
-              Hey Sir, how does Compound Interest actually work?
-            </div>
-            <div className="chat-bubble teacher">
-              <span className="t-name">Sir 🎓</span>
-              Imagine a snowball rolling down a hill. As it rolls, it picks up more snow, getting bigger and faster! That's compound interest...
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══ CTA ══ */}
-      <section className="cta-section">
-        <div className="cta-box premium-glass">
-          <h2 className="cta-title">Ready to build your empire?</h2>
-          <p className="cta-desc">
-            Join thousands of Indian students building real wealth. Subscribe today to unlock the full curriculum, the AI Mentor, and the City Leaderboards.
-          </p>
-          <div className="cta-actions">
-            <Link href="/onboarding" className="btn-neon pulse">
-              Subscribe Now
-            </Link>
-            <span className="cta-or">or</span>
-            <Link href="/parent" className="btn-text">
-              Show this to your parents
-            </Link>
-          </div>
+          <p className="lp-cta-note">Secure checkout · Cancel anytime · Parent dashboard included</p>
         </div>
       </section>
 
       <Footer />
 
       <style jsx>{`
-        .landing-page { padding-bottom: 2rem; overflow-x: hidden; }
+        .lp-root { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--lp-offwhite); color: var(--lp-text); min-height: 100vh; }
 
-        /* ── HERO ── */
-        .hero-section {
-          min-height: 90vh;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-          align-items: center;
-          padding: 4rem 6vw;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
-        .hero-badge {
-          display: inline-flex; align-items: center; gap: 0.6rem;
-          padding: 0.5rem 1rem; border-radius: 2rem;
-          background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25);
-          font-size: 0.8rem; font-weight: 700; color: var(--primary-glow);
-          margin-bottom: 1.5rem;
-        }
-        .live-dot {
-          width: 8px; height: 8px; border-radius: 50%;
-          background: var(--neon-green);
-          box-shadow: 0 0 8px rgba(0,229,160,0.8);
-          animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        
-        .hero-title {
-          font-size: clamp(2.5rem, 5vw, 4.5rem);
-          font-weight: 900; line-height: 1.1; margin-bottom: 1.5rem;
-          color: var(--foreground);
-        }
-        .hero-sub {
-          font-size: 1.1rem; color: var(--muted);
-          line-height: 1.7; margin-bottom: 2.5rem; max-width: 540px;
-        }
-        .hero-actions {
-          display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; margin-bottom: 3rem;
-        }
-        .hero-stats {
-          display: flex; gap: 3rem;
-        }
-        .h-stat { display: flex; flex-direction: column; gap: 0.3rem; }
-        .hs-val { font-size: 1.5rem; font-weight: 900; color: var(--foreground); }
-        .hs-lbl { font-size: 0.8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        /* NAV */
+        .lp-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(108,99,255,0.1); }
+        .lp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .lp-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.03em; }
+        .lp-logo-w { color: var(--lp-navy); }
+        .lp-logo-jr { color: var(--primary); margin-left: 2px; }
+        .lp-nav-links { display: flex; align-items: center; gap: 1.5rem; }
+        .lp-nav-link { color: var(--lp-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
+        .lp-nav-link:hover { color: var(--lp-text); }
+        .lp-btn-nav { background: var(--lp-navy); color: white; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.88rem; font-weight: 800; text-decoration: none; transition: all 0.2s; }
+        .lp-btn-nav:hover { background: var(--primary); transform: translateY(-1px); }
 
-        .hero-visual {
-          position: relative;
-          display: flex; justify-content: center; align-items: center;
-        }
-        .hero-glow {
-          position: absolute; width: 400px; height: 400px;
-          background: radial-gradient(circle, rgba(108,99,255,0.2), transparent 70%);
-          z-index: -1; top: 50%; left: 50%; transform: translate(-50%, -50%);
-        }
-        .device-mockup {
-          width: 100%; max-width: 400px;
-          border-radius: 1.5rem; border: 1px solid rgba(108,99,255,0.3);
-          background: rgba(10,15,44,0.8); backdrop-filter: blur(20px);
-          box-shadow: 0 20px 40px rgba(0,0,0,0.4), 0 0 40px rgba(108,99,255,0.1);
-          overflow: hidden;
-        }
-        .mockup-header {
-          padding: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05);
-          display: flex; align-items: center; gap: 1rem;
-        }
-        .dots { display: flex; gap: 0.4rem; }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot.r { background: #FF5A5A; }
-        .dot.y { background: #FFBD2E; }
-        .dot.g { background: #28CA42; }
-        .mockup-title { font-size: 0.8rem; font-family: monospace; color: var(--muted); margin: 0 auto; opacity: 0.7; }
-        .mockup-body {
-          padding: 2rem; display: flex; flex-direction: column; gap: 1rem;
-        }
-        .mk-card {
-          padding: 1rem; border-radius: 1rem; background: rgba(255,255,255,0.03);
-          border: 1px solid rgba(255,255,255,0.05);
-          display: flex; align-items: center; gap: 1rem;
-        }
-        .mk-1 { border-color: rgba(0,229,160,0.2); }
-        .mk-2 { border-color: rgba(255,209,102,0.2); }
-        .mk-icon { font-size: 1.5rem; }
-        .mk-info { display: flex; flex-direction: column; gap: 0.2rem; }
-        .mk-title { font-size: 0.9rem; font-weight: 700; color: var(--foreground); display: flex; align-items: center; gap: 0.4rem; }
-        .mk-sub { font-size: 0.7rem; color: var(--muted); }
-        .blue-tick { width: 14px; height: 14px; background: #1DA1F2; border-radius: 50%; color: white; display: flex; justify-content: center; align-items: center; font-size: 0.5rem; font-weight: 900; }
-        .mk-profile {
-          margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed rgba(255,255,255,0.1);
-          display: flex; align-items: center; gap: 1rem;
-        }
-        .mk-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--neon-green)); display: flex; justify-content: center; align-items: center; font-weight: 900; color: white; border: 2px solid var(--primary); }
+        /* HERO */
+        .lp-hero { position: relative; min-height: 90vh; background: var(--lp-navy); overflow: hidden; display: flex; align-items: center; padding: 6rem 2rem 4rem; gap: 4rem; justify-content: center; flex-wrap: wrap; }
+        .lp-hero-bg { position: absolute; inset: 0; pointer-events: none; }
+        .lp-hero-blob { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.25; }
+        .blob1 { width: 500px; height: 500px; background: radial-gradient(circle, #6C63FF, transparent); top: -100px; left: -100px; }
+        .blob2 { width: 400px; height: 400px; background: radial-gradient(circle, #F4A535, transparent); bottom: -80px; right: -60px; }
+        .lp-hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(108,99,255,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(108,99,255,0.06) 1px, transparent 1px); background-size: 60px 60px; }
 
-        /* ── GLOBAL HELPERS ── */
-        .text-center { text-align: center; }
-        .section-title { font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; color: var(--foreground); margin-bottom: 1rem; }
-        .section-subtitle { font-size: 1.1rem; color: var(--muted); max-width: 600px; margin: 0 auto 4rem; line-height: 1.6; }
+        .lp-hero-content { position: relative; z-index: 1; max-width: 560px; }
+        .lp-hero-tag { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(244,165,53,0.15); border: 1px solid rgba(244,165,53,0.35); color: var(--gold-light); font-size: 0.78rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 2rem; margin-bottom: 1.5rem; letter-spacing: 0.03em; }
+        .lp-tag-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: pulse-dot 1.5s infinite; flex-shrink: 0; }
+        @keyframes pulse-dot { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .lp-hero-h1 { font-size: clamp(2.6rem, 5vw, 4rem); font-weight: 900; line-height: 1.1; color: white; margin-bottom: 1.25rem; letter-spacing: -0.02em; }
+        .lp-hero-grad { background: linear-gradient(135deg, var(--gold), #FF6B35); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .lp-hero-p { color: rgba(255,255,255,0.65); font-size: 1.05rem; line-height: 1.7; font-weight: 500; margin-bottom: 2rem; }
+        .lp-hero-actions { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+        .lp-btn-primary { background: linear-gradient(135deg, var(--gold), #E8961E); color: var(--lp-navy); padding: 0.9rem 2.2rem; border-radius: 2rem; font-weight: 900; font-size: 1rem; text-decoration: none; transition: all 0.25s; font-family: 'Plus Jakarta Sans', sans-serif; display: inline-block; }
+        .lp-btn-primary:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(244,165,53,0.4); }
+        .lp-btn-xl { font-size: 1.1rem; padding: 1.1rem 3rem; }
+        .lp-btn-ghost { border: 1.5px solid rgba(255,255,255,0.25); color: rgba(255,255,255,0.8); padding: 0.9rem 2rem; border-radius: 2rem; font-weight: 700; font-size: 1rem; text-decoration: none; transition: all 0.25s; }
+        .lp-btn-ghost:hover { border-color: rgba(255,255,255,0.5); color: white; }
+        .lp-trust-row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .lp-trust-pill { background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); font-size: 0.72rem; font-weight: 700; padding: 0.3rem 0.75rem; border-radius: 2rem; display: flex; align-items: center; gap: 0.3rem; }
 
-        /* ── FEATURES ── */
-        .features-section { padding: 6rem 6vw; max-width: 1400px; margin: 0 auto; }
-        .features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
-        .feat-card {
-          padding: 2.5rem; border-radius: 1.5rem;
-          display: flex; flex-direction: column; gap: 1rem;
-          transition: transform 0.3s;
-        }
-        .feat-card:hover { transform: translateY(-5px); }
-        .fc-icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-        .fc-title { font-size: 1.25rem; font-weight: 800; color: var(--foreground); }
-        .fc-desc { font-size: 0.95rem; color: var(--muted); line-height: 1.7; flex: 1; }
-        .fc-tag {
-          align-self: flex-start; padding: 0.3rem 0.8rem; border-radius: 2rem;
-          background: rgba(108,99,255,0.1); color: var(--primary-glow); border: 1px solid rgba(108,99,255,0.3);
-          font-size: 0.75rem; font-weight: 700; margin-top: 1rem;
-        }
+        /* HERO CARD */
+        .lp-hero-card { position: relative; z-index: 1; background: rgba(14,22,56,0.85); border: 1px solid rgba(108,99,255,0.3); border-radius: 1.5rem; padding: 1.75rem; width: 340px; backdrop-filter: blur(20px); box-shadow: 0 30px 80px rgba(0,0,0,0.4), 0 0 0 1px rgba(108,99,255,0.1); flex-shrink: 0; }
+        .lp-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; }
+        .lp-card-logo { font-weight: 900; font-size: 1.1rem; color: white; letter-spacing: -0.02em; }
+        .lp-card-logo span { color: var(--gold); }
+        .lp-card-badge { background: rgba(108,99,255,0.2); color: #9B93FF; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.6rem; border-radius: 1rem; border: 1px solid rgba(108,99,255,0.3); }
+        .lp-card-lesson { background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.2); border-radius: 1rem; padding: 1.2rem; margin-bottom: 1.25rem; }
+        .lp-lesson-tag { font-size: 0.65rem; font-weight: 900; color: #FF6680; letter-spacing: 0.1em; margin-bottom: 0.4rem; }
+        .lp-lesson-title { font-size: 1rem; font-weight: 800; color: white; margin-bottom: 0.3rem; }
+        .lp-lesson-sub { font-size: 0.75rem; color: rgba(255,255,255,0.5); font-weight: 600; }
+        .lp-card-stats { display: flex; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .lp-cs { display: flex; flex-direction: column; flex: 1; background: rgba(0,0,0,0.25); border-radius: 0.75rem; padding: 0.6rem 0.75rem; }
+        .lp-cs-val { font-size: 0.95rem; font-weight: 900; color: white; }
+        .lp-cs-lbl { font-size: 0.6rem; font-weight: 700; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.2rem; }
+        .lp-card-bar-wrap { display: flex; flex-direction: column; gap: 0.5rem; }
+        .lp-card-bar-lbl { font-size: 0.7rem; font-weight: 700; color: rgba(255,255,255,0.5); display: flex; justify-content: space-between; }
+        .lp-card-bar-pct { font-size: 0.7rem; font-weight: 700; color: var(--neon-green); text-align: right; }
+        .lp-card-bar-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+        .lp-card-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--neon-green)); border-radius: 3px; }
 
-        /* ── AI TEACHER ── */
-        .ai-section {
-          padding: 6rem 6vw; max-width: 1400px; margin: 0 auto;
-          display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center;
-        }
-        .ai-desc { font-size: 1.05rem; color: var(--muted); line-height: 1.7; margin-bottom: 2rem; }
-        .ai-features { list-style: none; display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
-        .ai-features li { display: flex; align-items: center; gap: 1rem; font-size: 0.95rem; color: var(--foreground); font-weight: 600; }
-        .aif-icon { flex-shrink: 0; background: rgba(255,255,255,0.05); width: 32px; height: 32px; border-radius: 50%; display: flex; justify-content: center; align-items: center; }
-        
-        .ai-visual { display: flex; justify-content: center; }
-        .ai-chat-mockup {
-          width: 100%; max-width: 450px; padding: 2rem;
-          border-radius: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem;
-          box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        .chat-bubble { padding: 1rem 1.25rem; border-radius: 1.25rem; font-size: 0.9rem; line-height: 1.5; font-weight: 500; }
-        .student { background: rgba(255,255,255,0.05); color: var(--foreground); border-bottom-right-radius: 4px; border: 1px solid rgba(255,255,255,0.08); align-self: flex-end; max-width: 80%; }
-        .teacher { background: rgba(108,99,255,0.1); color: #E2E8F0; border-top-left-radius: 4px; border: 1px solid rgba(108,99,255,0.25); align-self: flex-start; max-width: 90%; }
-        .t-name { display: block; font-size: 0.75rem; font-weight: 800; color: var(--primary-glow); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        /* STATS */
+        .lp-stats-strip { background: white; border-top: 1px solid rgba(108,99,255,0.08); border-bottom: 1px solid rgba(108,99,255,0.08); padding: 2.5rem 2rem; display: flex; justify-content: center; align-items: center; gap: 0; flex-wrap: wrap; }
+        .lp-stat-item { display: flex; flex-direction: column; align-items: center; padding: 0.75rem 3rem; }
+        .lp-stat-val { font-size: clamp(1.8rem, 3vw, 2.5rem); font-weight: 900; color: var(--lp-navy); letter-spacing: -0.02em; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .lp-stat-lbl { font-size: 0.78rem; font-weight: 700; color: var(--lp-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.25rem; }
+        .lp-stat-divider { width: 1px; height: 50px; background: rgba(108,99,255,0.15); }
 
-        /* ── CTA ── */
-        .cta-section { padding: 6rem 6vw; max-width: 1000px; margin: 0 auto; text-align: center; }
-        .cta-box {
-          padding: 4rem 2rem; border-radius: 2rem;
-          background: linear-gradient(135deg, rgba(14,22,56,0.8), rgba(10,15,44,0.9));
-          border: 1px solid rgba(108,99,255,0.3);
-          box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 0 40px rgba(108,99,255,0.05);
-        }
-        .cta-title { font-size: clamp(2rem, 3.5vw, 3rem); font-weight: 900; margin-bottom: 1rem; color: var(--foreground); }
-        .cta-desc { font-size: 1.1rem; color: var(--muted); margin-bottom: 2.5rem; }
-        .cta-actions { display: flex; align-items: center; justify-content: center; gap: 1.5rem; flex-wrap: wrap; }
-        .cta-or { font-size: 0.9rem; font-weight: 600; color: var(--muted); }
-        .btn-text { color: var(--muted); font-weight: 600; text-decoration: underline; text-underline-offset: 4px; font-size: 0.9rem; transition: color 0.2s; }
-        .btn-text:hover { color: var(--primary-glow); }
+        /* SECTIONS */
+        .lp-section { padding: 6rem 2rem; }
+        .lp-section-alt { background: white; }
+        .lp-section-inner { max-width: 1100px; margin: 0 auto; }
+        .lp-section-tag { font-size: 0.78rem; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
+        .lp-section-h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 900; color: var(--lp-navy); margin-bottom: 1rem; letter-spacing: -0.02em; }
+        .lp-section-sub { color: var(--lp-muted); font-size: 1rem; font-weight: 500; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
 
-        @media(max-width: 1024px) {
-          .hero-section { grid-template-columns: 1fr; text-align: center; padding: 4rem 5vw; }
-          .hero-sub { margin: 0 auto 2.5rem; }
-          .hero-actions { justify-content: center; }
-          .hero-stats { justify-content: center; }
-          .ai-section { grid-template-columns: 1fr; text-align: center; }
-          .ai-features li { justify-content: center; }
-        }
-        @media(max-width: 768px) {
-          .features-grid { grid-template-columns: 1fr; }
-          .hero-stats { flex-direction: column; gap: 1.5rem; }
-          .cta-actions { flex-direction: column; gap: 1rem; }
-        }
+        /* FEATURES */
+        .lp-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .lp-feature-card { background: white; border: 1px solid var(--lp-border); border-radius: 1.25rem; padding: 2rem; transition: all 0.25s; }
+        .lp-feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(108,99,255,0.1); border-color: rgba(108,99,255,0.25); }
+        .lp-feature-icon { font-size: 2.2rem; margin-bottom: 1rem; display: block; }
+        .lp-feature-title { font-size: 1rem; font-weight: 800; color: var(--lp-navy); margin-bottom: 0.5rem; }
+        .lp-feature-desc { font-size: 0.88rem; color: var(--lp-muted); line-height: 1.65; font-weight: 500; }
+
+        /* TESTIMONIALS */
+        .lp-testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .lp-testi-card { background: var(--lp-offwhite); border: 1px solid var(--lp-border); border-radius: 1.25rem; padding: 2rem; display: flex; flex-direction: column; gap: 1rem; }
+        .lp-testi-stars { color: var(--gold); font-size: 0.9rem; letter-spacing: 0.1em; }
+        .lp-testi-text { color: var(--lp-text); font-size: 0.93rem; line-height: 1.7; font-weight: 500; flex: 1; }
+        .lp-testi-author { display: flex; align-items: center; gap: 0.75rem; }
+        .lp-testi-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--gold)); display: flex; align-items: center; justify-content: center; font-size: 0.78rem; font-weight: 900; color: white; flex-shrink: 0; }
+        .lp-testi-name { font-size: 0.88rem; font-weight: 800; color: var(--lp-navy); }
+        .lp-testi-meta { font-size: 0.75rem; color: var(--lp-muted); font-weight: 600; }
+
+        /* HOW IT WORKS */
+        .lp-hiw { text-align: center; }
+        .lp-hiw .lp-section-sub { margin: 0 auto 3rem; }
+        .lp-steps { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .lp-step { max-width: 280px; padding: 2rem; background: white; border: 1px solid var(--lp-border); border-radius: 1.25rem; text-align: left; position: relative; }
+        .lp-step-num { font-size: 2.5rem; font-weight: 900; color: rgba(108,99,255,0.12); font-family: 'Space Mono', monospace; margin-bottom: 1rem; }
+        .lp-step-title { font-size: 1rem; font-weight: 800; color: var(--lp-navy); margin-bottom: 0.5rem; }
+        .lp-step-desc { font-size: 0.88rem; color: var(--lp-muted); line-height: 1.65; font-weight: 500; }
+
+        /* CTA */
+        .lp-cta { background: var(--lp-navy); padding: 6rem 2rem; text-align: center; position: relative; overflow: hidden; }
+        .lp-cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at center, rgba(244,165,53,0.12), transparent 70%); }
+        .lp-cta-inner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; gap: 1.25rem; }
+        .lp-cta-tag { font-size: 0.75rem; font-weight: 900; color: var(--gold); text-transform: uppercase; letter-spacing: 0.12em; background: rgba(244,165,53,0.12); border: 1px solid rgba(244,165,53,0.3); padding: 0.35rem 1rem; border-radius: 2rem; }
+        .lp-cta-h2 { font-size: clamp(1.6rem, 3.5vw, 2.4rem); font-weight: 900; color: white; letter-spacing: -0.02em; line-height: 1.2; }
+        .lp-cta-sub { color: rgba(255,255,255,0.55); font-size: 1rem; font-weight: 500; }
+        .lp-cta-note { color: rgba(255,255,255,0.35); font-size: 0.8rem; font-weight: 600; }
+
+        @media(max-width: 1100px) { .lp-features-grid, .lp-testi-grid { grid-template-columns: 1fr 1fr; } }
+        @media(max-width: 768px) { .lp-features-grid, .lp-testi-grid { grid-template-columns: 1fr; } .lp-hero { padding: 5rem 1.5rem 3rem; } .lp-hero-card { width: 100%; max-width: 380px; } .lp-stat-item { padding: 0.75rem 1.5rem; } .lp-stat-divider { display: none; } .lp-steps { flex-direction: column; align-items: center; } .lp-nav-links .lp-nav-link { display: none; } }
       `}</style>
     </div>
   );

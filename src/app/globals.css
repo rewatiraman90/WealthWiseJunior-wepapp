@@ -1,11 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');
 
 /* ══════════════════════════════════════════════════════
-   FUTURISTIC DESIGN SYSTEM — WealthWise Junior
-   Theme: Deep Space + Neon Finance
+   DESIGN SYSTEM — WealthWise Junior
+   Internal App: Deep Space + Neon Finance
+   Public Pages: Navy + White + Gold Trust Theme
 ══════════════════════════════════════════════════════ */
 
 :root {
+  /* Internal App Colors */
   --primary: #6C63FF;
   --primary-glow: #9B93FF;
   --secondary: #00E5A0;
@@ -26,6 +28,18 @@
   --neon-orange: #FF6B35;
   --danger: #FF4466;
   --warning: #FFD166;
+  /* Premium Gold for trust / wealth signals */
+  --gold: #F4A535;
+  --gold-light: #FFD580;
+  --gold-dark: #C47D10;
+  /* Landing page specific - light/navy */
+  --lp-navy: #0B1437;
+  --lp-navy2: #111C4E;
+  --lp-white: #FFFFFF;
+  --lp-offwhite: #F0F4FF;
+  --lp-text: #1A2252;
+  --lp-muted: #5A6891;
+  --lp-border: rgba(108, 99, 255, 0.12);
 }
 
 /* ── Reset & Base ── */
