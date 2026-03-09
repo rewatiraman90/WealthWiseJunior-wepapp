@@ -321,7 +321,20 @@ export default function ParentLandingPage() {
       <Footer />
 
       <style jsx>{`
-        .parent-page { padding-bottom: 0; background: #F0F4FF; font-family: 'Plus Jakarta Sans', sans-serif; }
+        /* ═══ ROOT: Override dark-theme vars for this light-background page ═══ */
+        .parent-page {
+          padding-bottom: 0;
+          background: #F0F4FF;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          /* Override global dark theme vars so all inherited text is dark */
+          --foreground: #1A2252;
+          --muted: #4A5A85;
+          --border: rgba(26,34,82,0.1);
+          --card: rgba(255,255,255,0.9);
+          --card-border: rgba(108,99,255,0.15);
+          color: #1A2252;
+        }
+
 
         .hero-section { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: center; min-height: 90vh; padding: 5rem 7vw 4rem; max-width: 1400px; margin: 0 auto; }
         .hero-badge { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1.2rem; border-radius: 2rem; background: rgba(108,99,255,0.1); border: 1px solid rgba(108,99,255,0.25); font-size: 0.8rem; font-weight: 700; color: var(--primary); margin-bottom: 1.5rem; }
