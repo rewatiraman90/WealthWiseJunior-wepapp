@@ -19,6 +19,17 @@ function generateRollNumber(grade: string, city: string): string {
 }
 
 type Plan = 'free' | 'subscriber';
+type BillingCycle = 'monthly' | 'annual';
+
+const initializeRazorpay = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+};
 
 export default function OnboardingPage() {
   const router = useRouter();
@@ -26,7 +37,16 @@ export default function OnboardingPage() {
   const [formData, setFormData] = useState({
     name: '', age: '', grade: '', school: '', city: ''
   });
+  
+  // Auth state
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signup');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [authError, setAuthError] = useState('');
+  const [isAuthLoading, setIsAuthLoading] = useState(false);
+
   const [plan, setPlan] = useState<Plan>('subscriber');
+  const [billingCycle, setBillingCycle] = useState<BillingCycle>('monthly');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [sessionUid, setSessionUid] = useState<string | null>(null);
@@ -84,6 +104,34 @@ export default function OnboardingPage() {
     });
   };
 
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsAuthLoading(true);
+    setAuthError('');
+
+    try {
+      if (authMode === 'signup') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        if (error) throw error;
+        // The auth listener will detect the login and advance the step
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+        // The auth listener will detect the login and advance the step
+      }
+    } catch (err: any) {
+      setAuthError(err.message || "Failed to authenticate.");
+    } finally {
+      setIsAuthLoading(false);
+    }
+  };
+
   const handleInfoSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setStep('plan');
@@ -97,27 +145,102 @@ export default function OnboardingPage() {
     const isSubscriber = selectedPlan === 'subscriber';
     
     try {
-      const profileInfo = {
-        id: sessionUid,
-        name: formData.name,
-        age: parseInt(formData.age),
-        grade: formData.grade,
-        school: formData.school,
-        city: formData.city,
-        roll_number: rollNumber,
-        is_subscriber: isSubscriber,
-      };
+      if (isSubscriber) {
+        const res = await initializeRazorpay();
+        if (!res) {
+          throw new Error("Razorpay SDK failed to load. Are you online?");
+        }
 
-      const { error: insertError } = await supabase
-        .from('profiles')
-        .insert([profileInfo]);
+        const data = await fetch("/api/razorpay/create-subscription", {
+          method: "POST",
+          body: JSON.stringify({ planType: billingCycle })
+        }).then(t => t.json());
 
-      if (insertError) {
-        throw new Error(insertError.message || 'Failed to save profile data.');
+        if (!data.success) {
+          throw new Error(data.error || "Failed to create subscription. Please try again.");
+        }
+
+        const options = {
+          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+          name: "WealthWise Jr.",
+          description: billingCycle === 'annual' ? "Annual Subscriber Upgrade" : "Monthly Subscriber Upgrade",
+          subscription_id: data.subscription_id,
+          handler: async function (response: any) {
+            try {
+              const verifyData = await fetch("/api/razorpay/verify", {
+                method: "POST",
+                body: JSON.stringify({
+                  razorpay_subscription_id: response.razorpay_subscription_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  userId: sessionUid,
+                })
+              }).then(t => t.json());
+
+              if (verifyData.success) {
+                const profileInfo = {
+                  id: sessionUid,
+                  name: formData.name,
+                  age: parseInt(formData.age),
+                  grade: formData.grade,
+                  school: formData.school,
+                  city: formData.city,
+                  roll_number: rollNumber,
+                  is_subscriber: true,
+                };
+                
+                const { error: insertError } = await supabase.from('profiles').insert([profileInfo]);
+                if (insertError) {
+                  console.error("Profile insert error post payment:", insertError);
+                }
+                
+                localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
+                window.location.href = '/campus';
+              } else {
+                setErrorMsg("Payment verification failed. Please contact support.");
+                setIsSubmitting(false);
+              }
+            } catch (err) {
+              setErrorMsg("An error occurred during verification.");
+              setIsSubmitting(false);
+            }
+          },
+          prefill: {
+            name: formData.name,
+          },
+          theme: {
+            color: "#6c63ff"
+          }
+        };
+
+        const paymentObject = new (window as any).Razorpay(options);
+        paymentObject.on('payment.failed', function (response: any) {
+          setErrorMsg(response.error.description || "Payment failed");
+          setIsSubmitting(false);
+        });
+        paymentObject.open();
+
+      } else {
+        const profileInfo = {
+          id: sessionUid,
+          name: formData.name,
+          age: parseInt(formData.age),
+          grade: formData.grade,
+          school: formData.school,
+          city: formData.city,
+          roll_number: rollNumber,
+          is_subscriber: false,
+        };
+
+        const { error: insertError } = await supabase.from('profiles').insert([profileInfo]);
+        if (insertError) throw new Error(insertError.message || 'Failed to save profile data.');
+
+        localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
+        
+        // Use window.location instead of router push to ensure state fully refreshes down the line
+        window.location.href = '/campus';
       }
 
-      localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
-      router.push('/campus');
     } catch (err: any) {
       setErrorMsg(err.message);
       setIsSubmitting(false);
@@ -145,9 +268,51 @@ export default function OnboardingPage() {
           <h1 className="gradient-text ob-title" style={{ marginTop: '1rem' }}>Welcome to Campus</h1>
           <p className="ob-sub">Sign in to start your wealth building journey.</p>
           
+          <form onSubmit={handleEmailAuth} className="ob-form" style={{ textAlign: 'left', marginBottom: '1.5rem' }}>
+            <div className="input-group">
+              <label>Email</label>
+              <input
+                type="email" required placeholder="name@email.com"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+              />
+            </div>
+            <div className="input-group">
+              <label>Password</label>
+              <input
+                type="password" required placeholder="••••••••"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+              />
+            </div>
+            {authError && <div style={{ color: '#FF4466', fontSize: '0.8rem', marginTop: '-0.5rem' }}>{authError}</div>}
+            
+            <button type="submit" className="ob-btn-primary" disabled={isAuthLoading}>
+              {isAuthLoading ? 'Please wait...' : (authMode === 'signup' ? 'Create Account' : 'Sign In')}
+            </button>
+            
+            <p style={{ fontSize: '0.8rem', textAlign: 'center', color: 'var(--muted)', marginTop: '0.5rem' }}>
+              {authMode === 'signup' ? 'Already have an account? ' : "Don't have an account? "}
+              <button 
+                type="button" 
+                onClick={() => setAuthMode(authMode === 'signup' ? 'signin' : 'signup')}
+                style={{ background: 'none', border: 'none', color: 'var(--primary-glow)', cursor: 'pointer', fontWeight: 'bold' }}
+              >
+                {authMode === 'signup' ? 'Sign In' : 'Sign Up'}
+              </button>
+            </p>
+          </form>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', margin: '1rem 0', color: 'var(--muted)', fontSize: '0.8rem', fontWeight: 600 }}>
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+            OR
+            <div style={{ flex: 1, height: '1px', background: 'var(--border)' }}></div>
+          </div>
+
           <button 
             className="ob-btn-google pulse" 
             onClick={handleGoogleSignIn}
+            style={{ marginTop: '1rem' }}
           >
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
@@ -155,7 +320,7 @@ export default function OnboardingPage() {
               <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
               <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
             </svg>
-            <span style={{ fontWeight: 800 }}>Sign in with Google</span>
+            <span style={{ fontWeight: 800 }}>Continue with Google</span>
           </button>
         </div>
       )}
@@ -243,10 +408,30 @@ export default function OnboardingPage() {
             >
               <div className="plan-badge">⭐ MOST POPULAR</div>
               <div className="plan-icon">🏆</div>
-              <div className="plan-name">Monthly Subscriber</div>
+              <div className="plan-name">Premium Subscriber</div>
+              
+              <div className="billing-toggle">
+                 <button 
+                   className={billingCycle === 'monthly' ? 'active' : ''} 
+                   onClick={(e) => { e.stopPropagation(); setBillingCycle('monthly'); }}
+                 >
+                   Monthly
+                 </button>
+                 <button 
+                   className={billingCycle === 'annual' ? 'active' : ''} 
+                   onClick={(e) => { e.stopPropagation(); setBillingCycle('annual'); }}
+                 >
+                   Annually <span className="discount-badge">20% OFF</span>
+                 </button>
+              </div>
+
               <div className="plan-price">
-                <span className="price-num gradient-text">₹299</span>
-                <span className="price-period">/ month</span>
+                <span className="price-num gradient-text">
+                  {billingCycle === 'annual' ? '₹2868' : '₹299'}
+                </span>
+                <span className="price-period">
+                  {billingCycle === 'annual' ? '/ year' : '/ month'}
+                </span>
               </div>
               <div className="plan-roll-preview">
                 <span className="roll-label">Your Roll No.</span>
@@ -262,9 +447,6 @@ export default function OnboardingPage() {
                 <li>✅ Certificate of completion</li>
                 <li>✅ Exclusive subscriber badge</li>
               </ul>
-              <div className={`plan-select-btn plan-select-premium ${plan === 'subscriber' ? 'selected' : ''}`}>
-                {plan === 'subscriber' ? '✓ Selected' : 'Select Plan'}
-              </div>
             </div>
           </div>
 
@@ -398,6 +580,41 @@ export default function OnboardingPage() {
         .plan-price { display: flex; align-items: baseline; gap: .35rem; }
         .price-num { font-size: 1.6rem; font-weight: 900; color: var(--foreground); }
         .price-period { font-size: .75rem; color: var(--muted); font-weight: 700; }
+
+        .billing-toggle {
+           display: flex;
+           background: rgba(108,99,255,0.1);
+           border-radius: 1rem;
+           padding: 0.25rem;
+           margin: 0.5rem 0 0.5rem 0;
+           align-self: flex-start;
+        }
+        .billing-toggle button {
+           background: transparent;
+           border: none;
+           color: var(--muted);
+           padding: 0.4rem 0.8rem;
+           font-size: 0.75rem;
+           font-weight: 800;
+           border-radius: 0.8rem;
+           cursor: pointer;
+           transition: all 0.2s;
+           font-family: inherit;
+        }
+        .billing-toggle button.active {
+           background: var(--primary);
+           color: white;
+           box-shadow: 0 2px 10px rgba(108,99,255,0.3);
+        }
+        .discount-badge {
+           background: #FFD166;
+           color: #1a1a2e;
+           font-size: 0.6rem;
+           padding: 0.15rem 0.4rem;
+           border-radius: 1rem;
+           margin-left: 0.3rem;
+           font-weight: 900;
+        }
 
         .plan-roll-preview {
           display: flex;
