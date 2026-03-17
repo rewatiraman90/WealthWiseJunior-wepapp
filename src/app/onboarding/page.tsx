@@ -167,13 +167,20 @@ export default function OnboardingPage() {
           subscription_id: data.subscription_id,
           handler: async function (response: any) {
             try {
+              // Fetch the current session token to authenticate the server-side verify call
+              const { data: sessionData } = await supabase.auth.getSession();
+              const token = sessionData?.session?.access_token;
+
               const verifyData = await fetch("/api/razorpay/verify", {
                 method: "POST",
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`
+                },
                 body: JSON.stringify({
                   razorpay_subscription_id: response.razorpay_subscription_id,
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_signature: response.razorpay_signature,
-                  userId: sessionUid,
                 })
               }).then(t => t.json());
 
