@@ -64,6 +64,24 @@ export default function OnboardingPage() {
         localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number, avatar: profile.avatar_url }));
         router.push('/campus');
       } else {
+        // ADMIN BYPASS: If email is admin, skip to campus directly by creating a profile automatically
+        if (session.user.email === 'rayraman90@gmail.com') {
+          const profileInfo = {
+            id: session.user.id,
+            name: session.user.user_metadata?.full_name || 'Admin',
+            age: 25,
+            grade: '12',
+            school: 'WWJ Academy',
+            city: 'Bangalore',
+            roll_number: 'ADMIN-001',
+            is_subscriber: true,
+          };
+          await supabase.from('profiles').upsert([profileInfo]);
+          localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber: profileInfo.roll_number }));
+          window.location.href = '/campus';
+          return;
+        }
+
         // Logged in but no profile. Let's pre-fill name if available.
         if (session.user.user_metadata?.full_name) {
           setFormData(prev => ({ ...prev, name: session.user.user_metadata.full_name }));
@@ -149,7 +167,10 @@ export default function OnboardingPage() {
         };
 
         const { error: insertError } = await supabase.from('profiles').upsert([profileInfo]);
-        if (insertError) throw new Error(insertError.message);
+        if (insertError) {
+          alert("Database Error: " + insertError.message);
+          throw new Error(insertError.message);
+        }
 
         // 2. Clear local profile and prepare for redirect
         localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
@@ -157,6 +178,11 @@ export default function OnboardingPage() {
         // 3. Get Auth Token for backend hash generation
         const { data: sessionData } = await supabase.auth.getSession();
         const token = sessionData?.session?.access_token;
+        
+        if (!token) {
+          alert("Auth Error: Session token not found. Please logout and login again.");
+          throw new Error("No session token");
+        }
 
         // 4. Request Hash from our backend
         const res = await fetch("/api/payu/create-hash", {
@@ -173,6 +199,7 @@ export default function OnboardingPage() {
         }).then(t => t.json());
 
         if (!res.success) {
+          alert("PayU Setup Error: " + res.error);
           throw new Error(res.error || "Failed to initialize payment.");
         }
 
@@ -440,13 +467,22 @@ export default function OnboardingPage() {
 
           <div className="plan-actions">
             {errorMsg && <div className="error-message" style={{ color: '#FF4466', marginBottom: '1rem', fontSize: '0.9rem', textAlign: 'center' }}>{errorMsg}</div>}
-            <button 
-              className="ob-btn-primary pulse" 
-              onClick={() => handlePlanSubmit(plan)}
-              disabled={isSubmitting}
-            >
-               {isSubmitting ? 'Creating Profile...' : 'Proceed to Subscribe →'}
-            </button>
+            {sessionUid && sessionUid === 'rayraman90@gmail.com' || localStorage.getItem('wwj_profile')?.includes('ADMIN-001') ? (
+              <button 
+                className="ob-btn-primary pulse" 
+                onClick={() => window.location.href = '/campus'}
+              >
+                 Admin Access: Go to Campus →
+              </button>
+            ) : (
+              <button 
+                className="ob-btn-primary pulse" 
+                onClick={() => handlePlanSubmit(plan)}
+                disabled={isSubmitting}
+              >
+                 {isSubmitting ? 'Creating Profile...' : 'Proceed to Subscribe →'}
+              </button>
+            )}
           </div>
         </div>
       )}

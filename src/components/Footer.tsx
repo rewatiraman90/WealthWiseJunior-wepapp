@@ -36,7 +36,7 @@ export default function Footer() {
       </div>
       
       <div className="footer-bottom">
-        <p>© {currentYear} WealthWise Junior. All rights reserved. | Payments secured by <span style={{ color: "var(--primary-glow)" }}>Razorpay</span></p>
+        <p>© {currentYear} WealthWise Junior. All rights reserved. | Payments secured by <span style={{ color: "var(--primary-glow)" }}>PayU India</span></p>
       </div>
 
       <style jsx>{`

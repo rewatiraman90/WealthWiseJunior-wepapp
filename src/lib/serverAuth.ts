@@ -18,5 +18,10 @@ export async function getAuthenticatedUser(req: NextRequest | Request) {
   const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
 
   if (error || !user) return null;
-  return user;
+
+  // Add isAdmin flag to the user object
+  return {
+    ...user,
+    isAdmin: user.email === 'rayraman90@gmail.com'
+  };
 }

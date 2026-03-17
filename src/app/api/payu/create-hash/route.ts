@@ -11,8 +11,15 @@ export async function POST(req: Request) {
 
     const { planType, firstname, email } = await req.json();
 
-    const merchantKey = process.env.PAYU_MERCHANT_KEY!;
-    const merchantSalt = process.env.PAYU_MERCHANT_SALT!;
+    const merchantKey = process.env.PAYU_MERCHANT_KEY;
+    const merchantSalt = process.env.PAYU_MERCHANT_SALT;
+
+    if (!merchantKey || !merchantSalt) {
+      return NextResponse.json({ 
+        success: false, 
+        error: "Server Configuration Error: PAYU_MERCHANT_KEY or PAYU_MERCHANT_SALT is missing." 
+      }, { status: 500 });
+    }
     
     // Generate a unique transaction ID
     const txnid = `WWJ_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;

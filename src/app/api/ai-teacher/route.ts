@@ -8,10 +8,16 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 export async function POST(req: NextRequest) {
   try {
     // Auth guard — reject unauthenticated requests
-    const user = await getAuthenticatedUser(req);
-    if (!user) {
+    const authenticatedUser = await getAuthenticatedUser(req);
+    if (!authenticatedUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
+    // Admin Bypass or Subscriber Check
+    // (Currently we only check auth, but adding the pattern for future gating)
+    const isAdmin = authenticatedUser.email === 'rayraman90@gmail.com';
+    // const isSubscriber = ... fetch from DB ...
+    // if (!isAdmin && !isSubscriber) return ... 403 Forbidden ...
 
     const { grade, topic, messages } = await req.json();
 
