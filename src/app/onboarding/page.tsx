@@ -21,16 +21,6 @@ function generateRollNumber(grade: string, city: string): string {
 type Plan = 'free' | 'subscriber';
 type BillingCycle = 'monthly' | 'annual';
 
-const initializeRazorpay = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
-};
-
 export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState<'loading' | 'signin' | 'info' | 'plan'>('loading');
@@ -146,86 +136,77 @@ export default function OnboardingPage() {
     
     try {
       if (isSubscriber) {
-        const res = await initializeRazorpay();
-        if (!res) {
-          throw new Error("Razorpay SDK failed to load. Are you online?");
-        }
-
-        const data = await fetch("/api/razorpay/create-subscription", {
-          method: "POST",
-          body: JSON.stringify({ planType: billingCycle })
-        }).then(t => t.json());
-
-        if (!data.success) {
-          throw new Error(data.error || "Failed to create subscription. Please try again.");
-        }
-
-        const options = {
-          key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-          name: "WealthWise Jr.",
-          description: billingCycle === 'annual' ? "Annual Subscriber Upgrade" : "Monthly Subscriber Upgrade",
-          subscription_id: data.subscription_id,
-          handler: async function (response: any) {
-            try {
-              // Fetch the current session token to authenticate the server-side verify call
-              const { data: sessionData } = await supabase.auth.getSession();
-              const token = sessionData?.session?.access_token;
-
-              const verifyData = await fetch("/api/razorpay/verify", {
-                method: "POST",
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                  razorpay_subscription_id: response.razorpay_subscription_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                })
-              }).then(t => t.json());
-
-              if (verifyData.success) {
-                const profileInfo = {
-                  id: sessionUid,
-                  name: formData.name,
-                  age: parseInt(formData.age),
-                  grade: formData.grade,
-                  school: formData.school,
-                  city: formData.city,
-                  roll_number: rollNumber,
-                  is_subscriber: true,
-                };
-                
-                const { error: insertError } = await supabase.from('profiles').insert([profileInfo]);
-                if (insertError) {
-                  console.error("Profile insert error post payment:", insertError);
-                }
-                
-                localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
-                window.location.href = '/campus';
-              } else {
-                setErrorMsg("Payment verification failed. Please contact support.");
-                setIsSubmitting(false);
-              }
-            } catch (err) {
-              setErrorMsg("An error occurred during verification.");
-              setIsSubmitting(false);
-            }
-          },
-          prefill: {
-            name: formData.name,
-          },
-          theme: {
-            color: "#6c63ff"
-          }
+        // 1. Save initial profile (non-subscriber yet) to DB so we have a record
+        const profileInfo = {
+          id: sessionUid,
+          name: formData.name,
+          age: parseInt(formData.age),
+          grade: formData.grade,
+          school: formData.school,
+          city: formData.city,
+          roll_number: rollNumber,
+          is_subscriber: false, // Will be flipped to true by PayU callback
         };
 
-        const paymentObject = new (window as any).Razorpay(options);
-        paymentObject.on('payment.failed', function (response: any) {
-          setErrorMsg(response.error.description || "Payment failed");
-          setIsSubmitting(false);
+        const { error: insertError } = await supabase.from('profiles').upsert([profileInfo]);
+        if (insertError) throw new Error(insertError.message);
+
+        // 2. Clear local profile and prepare for redirect
+        localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
+
+        // 3. Get Auth Token for backend hash generation
+        const { data: sessionData } = await supabase.auth.getSession();
+        const token = sessionData?.session?.access_token;
+
+        // 4. Request Hash from our backend
+        const res = await fetch("/api/payu/create-hash", {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ 
+            planType: billingCycle,
+            firstname: formData.name.split(' ')[0],
+            email: sessionData?.session?.user?.email
+          })
+        }).then(t => t.json());
+
+        if (!res.success) {
+          throw new Error(res.error || "Failed to initialize payment.");
+        }
+
+        // 5. Create a hidden form and submit it to PayU
+        const payuData = res.data;
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = payuData.action;
+
+        // Add all required PayU fields
+        const fields = {
+          key: payuData.key,
+          txnid: payuData.txnid,
+          amount: payuData.amount,
+          productinfo: payuData.productinfo,
+          firstname: payuData.firstname,
+          email: payuData.email,
+          udf1: payuData.udf1,
+          hash: payuData.hash,
+          si_details: payuData.si_details,
+          surl: payuData.surl,
+          furl: payuData.furl,
+        };
+
+        Object.entries(fields).forEach(([key, value]) => {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = key;
+          input.value = value as string;
+          form.appendChild(input);
         });
-        paymentObject.open();
+
+        document.body.appendChild(form);
+        form.submit();
 
       } else {
         const profileInfo = {
