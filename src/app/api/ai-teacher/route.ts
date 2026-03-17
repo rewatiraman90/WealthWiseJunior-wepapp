@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildSystemPrompt } from '@/data/aiTeacherContext';
+import { getAuthenticatedUser } from '@/lib/serverAuth';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth guard — reject unauthenticated requests
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { grade, topic, messages } = await req.json();
 
     if (!process.env.GEMINI_API_KEY) {

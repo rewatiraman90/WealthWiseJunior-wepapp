@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
+import { getAuthenticatedUser } from '@/lib/serverAuth';
 
 // Initialize inside the handler to prevent build errors when env vars are missing
 
 export async function POST(req: NextRequest) {
   try {
+    // Auth guard — reject unauthenticated requests
+    const user = await getAuthenticatedUser(req);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { text } = await req.json();
 
     if (!text) {
