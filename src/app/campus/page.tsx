@@ -95,7 +95,7 @@ export default function CampusDashboard() {
       return { 
         ...w, 
         locked: true, 
-        href: "/onboarding", 
+        href: "/onboarding?upgrade=true", 
         btnLabel: "Subscribe to Unlock 🔒",
         badge: "⭐ Subscriber Only",
         badgeType: "locked"
@@ -180,7 +180,7 @@ export default function CampusDashboard() {
             {!w.locked
               ? <Link href={w.href} className="btn-primary wc-btn">{w.btnLabel}</Link>
               : (
-                w.href === '/onboarding' 
+                w.href.includes('/onboarding') 
                 ? <Link href={w.href} className="btn-outline wc-btn" style={{ background: 'rgba(255,209,102,0.1)', color: '#FFD166', borderColor: 'rgba(255,209,102,0.3)' }}>{w.btnLabel}</Link>
                 : <button className="btn-outline wc-btn" disabled style={{ opacity: 0.4, cursor: "not-allowed" }}>{w.btnLabel}</button>
               )

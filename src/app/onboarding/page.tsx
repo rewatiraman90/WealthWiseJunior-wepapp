@@ -1,6 +1,6 @@
 "use client";
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 // City abbreviations for roll number
@@ -21,8 +21,9 @@ function generateRollNumber(grade: string, city: string): string {
 type Plan = 'free' | 'subscriber';
 type BillingCycle = 'monthly' | 'annual';
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState<'loading' | 'signin' | 'info' | 'plan'>('loading');
   const [formData, setFormData] = useState({
     name: '', age: '', grade: '', school: '', city: ''
@@ -58,11 +59,23 @@ export default function OnboardingPage() {
         .select('*')
         .eq('id', session.user.id)
         .single();
+        
+      const isUpgrade = searchParams.get('upgrade') === 'true';
 
-      if (profile) {
+      if (profile && !isUpgrade) {
         // Logged in and profile exists. Save to local storage for instant UI sync and redirect.
         localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number, avatar: profile.avatar_url }));
         router.push('/campus');
+      } else if (profile && isUpgrade) {
+        localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number, avatar: profile.avatar_url }));
+        setFormData({
+          name: profile.name || '',
+          age: profile.age?.toString() || '',
+          grade: profile.grade || '',
+          school: profile.school || '',
+          city: profile.city || ''
+        });
+        setStep('plan');
       } else {
         // ADMIN BYPASS: If email is admin, skip to campus directly by creating a profile automatically
         if (session.user.email === 'rayraman90@gmail.com') {
@@ -697,5 +710,17 @@ export default function OnboardingPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="ob-root" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+        Loading...
+      </div>
+    }>
+      <OnboardingContent />
+    </Suspense>
   );
 }

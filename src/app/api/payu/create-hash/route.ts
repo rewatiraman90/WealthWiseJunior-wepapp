@@ -31,13 +31,13 @@ export async function POST(req: Request) {
 
     // SI Details (Standing Instructions)
     const siDetailsObj = {
-      billingCycle: planType === 'annual' ? 'Yearly' : 'Monthly',
+      billingCycle: planType === 'annual' ? 'YEARLY' : 'MONTHLY',
       billingInterval: 1,
       paymentDefaultLimit: 1,
       startDate: new Date().toISOString().split('T')[0],
       endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0], 
       amount: amount,
-      recurrence: 'forever'
+      recurrence: '0' // 0 often represents until cancelled in PayU
     };
 
     const si_details = JSON.stringify(siDetailsObj);
