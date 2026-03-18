@@ -76,8 +76,12 @@ export default function StudentLandingPage() {
       {/* ══ NAV ══ */}
       <nav className="lp-nav">
         <div className="lp-nav-inner">
-          <div className="lp-logo" style={{ display: 'flex', alignItems: 'center' }}>
-            <img src="/logo.png" alt="WealthWise Jr." style={{ height: '40px', width: 'auto' }} />
+          <div className="lp-logo" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <img src="/logo.png" alt="WealthWise Jr." style={{ height: '60px', width: 'auto' }} />
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '2px' }}>
+              <span className="lp-logo-w">WealthWise</span>
+              <span className="lp-logo-jr">Jr.</span>
+            </div>
           </div>
           <div className="lp-nav-links">
             <Link href="/parent" className="lp-nav-link">For Parents</Link>

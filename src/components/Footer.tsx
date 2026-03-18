@@ -7,9 +7,12 @@ export default function Footer() {
       <div className="footer-glow" />
       <div className="footer-content">
         <div className="footer-brand">
-          <div className="logo">
-            <span className="gradient-text" style={{ fontWeight: 900, fontSize: "1.3rem", letterSpacing: "-0.03em" }}>WealthWise</span>
-            <span style={{ fontWeight: 700, fontSize: "0.85rem", color: "var(--neon-green)", fontFamily: "'Space Mono', monospace" }}>Jr.</span>
+          <div className="logo" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <img src="/logo.png" alt="Logo" style={{ height: '60px', width: 'auto' }} />
+            <div>
+              <span className="gradient-text" style={{ fontWeight: 900, fontSize: "1.6rem", letterSpacing: "-0.03em" }}>WealthWise</span>
+              <span style={{ fontWeight: 700, fontSize: "1rem", color: "var(--neon-green)", fontFamily: "'Space Mono', monospace" }}>Jr.</span>
+            </div>
           </div>
           <p className="footer-desc">
             Empowering the next generation of India with real-world financial literacy. Play, learn, and grow wealth.
