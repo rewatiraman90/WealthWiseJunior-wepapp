@@ -34,10 +34,11 @@ export async function POST(req: Request) {
       billingCycle: planType === 'annual' ? 'YEARLY' : 'MONTHLY',
       billingInterval: 1,
       paymentDefaultLimit: 1,
-      startDate: new Date().toISOString().split('T')[0],
-      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0], 
-      amount: amount,
-      recurrence: '0' // 0 often represents until cancelled in PayU
+      paymentStartDate: new Date().toISOString().split('T')[0],
+      paymentEndDate: new Date(new Date().setFullYear(new Date().getFullYear() + 10)).toISOString().split('T')[0], 
+      billingAmount: amount,
+      recurrence: '0', // 0 often represents until cancelled in PayU
+      EnableSI: 1
     };
 
     const si_details = JSON.stringify(siDetailsObj);
