@@ -47,7 +47,7 @@ export default function SubscriberLock({
             <li>✅ Activity Lab & Freedom Roadmap</li>
           </ul>
 
-          <Link href="/onboarding" className="lock-btn">
+          <Link href="/onboarding?upgrade=true" className="lock-btn">
             Upgrade to Subscriber (₹299/mo)
           </Link>
           <p className="lock-note">Join 50,000+ students building real wealth.</p>

@@ -43,8 +43,9 @@ export async function POST(req: Request) {
 
     const si_details = JSON.stringify(siDetailsObj);
 
-    // Hash Logic: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||si_details|SALT
-    const hashString = `${merchantKey}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}||||||||||${si_details}|${merchantSalt}`;
+    // Hash Logic: key|txnid|amount|productinfo|firstname|email|udf1|udf2|udf3|udf4|udf5||||||SALT
+    // NOTE: si_details is passed as a form field but is NOT included in the hash.
+    const hashString = `${merchantKey}|${txnid}|${amount}|${productinfo}|${firstname}|${email}|${udf1}||||||||||${merchantSalt}`;
     
     const hash = crypto.createHash('sha512').update(hashString).digest('hex');
 
