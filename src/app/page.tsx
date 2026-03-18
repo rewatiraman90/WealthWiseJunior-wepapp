@@ -76,9 +76,8 @@ export default function StudentLandingPage() {
       {/* ══ NAV ══ */}
       <nav className="lp-nav">
         <div className="lp-nav-inner">
-          <div className="lp-logo">
-            <span className="lp-logo-w">WealthWise</span>
-            <span className="lp-logo-jr">Jr.</span>
+          <div className="lp-logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="WealthWise Jr." style={{ height: '40px', width: 'auto' }} />
           </div>
           <div className="lp-nav-links">
             <Link href="/parent" className="lp-nav-link">For Parents</Link>
@@ -128,7 +127,7 @@ export default function StudentLandingPage() {
         </div>
         <div className="lp-hero-card">
           <div className="lp-card-header">
-            <div className="lp-card-logo">WealthWise<span>Jr.</span></div>
+            <div className="lp-card-logo" style={{ display: 'flex', alignItems: 'center' }}><img src="/logo.png" alt="WealthWise Jr." style={{ height: '24px', width: 'auto' }} /></div>
             <span className="lp-card-badge">📅 Module 1</span>
           </div>
           <div className="lp-card-lesson">

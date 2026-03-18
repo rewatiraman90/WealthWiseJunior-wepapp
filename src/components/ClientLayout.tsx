@@ -73,9 +73,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     <div className={`main-layout ${isLandingPage ? "full-page" : ""}`}>
       {!isLandingPage && (
         <aside className="sidebar">
-          <div className="logo">
-            <span className="gradient-text" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>WealthWise</span>
-            <span className="logo-jr">Jr.</span>
+          <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="WealthWise Jr." style={{ height: '40px', width: 'auto' }} />
           </div>
 
           <nav>

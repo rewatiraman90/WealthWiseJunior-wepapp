@@ -92,8 +92,8 @@ export default function ParentLandingPage() {
     <div className="parent-page">
       {/* ══ HEADER ══ */}
       <header style={{ display: 'flex', justifyContent: 'space-between', padding: '1.5rem 2rem', alignItems: 'center', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-        <div className="logo" style={{ fontWeight: 900, fontSize: "1.4rem", letterSpacing: "-0.03em" }}>
-          <span className="gradient-text">WealthWise</span> <span style={{ color: "var(--neon-green)" }}>Jr.</span>
+        <div className="logo" style={{ display: 'flex', alignItems: 'center' }}>
+          <img src="/logo.png" alt="WealthWise Jr." style={{ height: '40px', width: 'auto' }} />
         </div>
         <Link href={hasProfile ? "/campus" : "/onboarding"} className="btn-outline" style={{ padding: '0.5rem 1.2rem', fontSize: '0.9rem' }}>
           {hasProfile ? "Go to Campus" : "Student Login"}
