@@ -59,9 +59,11 @@ export async function POST(req: Request) {
         udf1,
         hash,
         si_details,
+        si: '1',
+        phone: '9999999999',
         surl: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/api/payu/callback`,
         furl: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/onboarding?payment=failed`,
-        action: process.env.PAYU_BASE_URL || 'https://test.payu.in/_payment'
+        action: process.env.PAYU_BASE_URL?.trim() || 'https://test.payu.in/_payment'
       }
     });
   } catch (error: any) {
