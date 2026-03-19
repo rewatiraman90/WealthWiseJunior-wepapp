@@ -13,6 +13,7 @@ export interface StudentProfile {
   joinedDate: string;
   avatar?: string;
   isAdmin?: boolean;
+  id?: string;
 }
 
 export function useProfile() {
@@ -33,7 +34,8 @@ export function useProfile() {
           setProfile({
             ...parsed,
             isSubscriber: isAdmin ? true : parsed.isSubscriber,
-            isAdmin
+            isAdmin,
+            id: session?.user?.id || parsed.id
           });
         } else if (isAdmin && session?.user) {
           // Fallback if local storage is cleared but user is admin
@@ -46,7 +48,8 @@ export function useProfile() {
             rollNumber: 'ADMIN-001',
             isSubscriber: true,
             joinedDate: new Date().toISOString(),
-            isAdmin: true
+            isAdmin: true,
+            id: session?.user?.id
           });
         }
       } catch (e) {

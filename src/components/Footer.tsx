@@ -36,6 +36,17 @@ export default function Footer() {
             <li><a href="mailto:support@wealthwisejunior.in">support@wealthwisejunior.in</a></li>
           </ul>
         </div>
+        
+        <div className="footer-links">
+          <h4>Resources</h4>
+          <ul>
+            <li>
+              <a href="https://wealth-wise-junior.blogspot.com/" target="_blank" rel="noopener noreferrer">
+                Blog
+              </a>
+            </li>
+          </ul>
+        </div>
       </div>
       
       <div className="footer-bottom">
@@ -68,7 +79,7 @@ export default function Footer() {
           max-width: 1100px;
           margin: 0 auto;
           display: grid;
-          grid-template-columns: 2fr 1fr 1fr;
+          grid-template-columns: 2fr 1fr 1fr 1fr;
           gap: 3rem;
           margin-bottom: 3rem;
         }

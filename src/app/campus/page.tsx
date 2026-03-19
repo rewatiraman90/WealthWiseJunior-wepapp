@@ -114,6 +114,17 @@ export default function CampusDashboard() {
           </p>
           <h1 className="gradient-text campus-h1">MoneyMind Campus</h1>
           <p className="campus-subtitle">Class {profile?.grade || '8'} · Module 1 · Financial Intelligence Academy</p>
+          {isSubscriber && profile?.id && (
+            <div style={{ marginTop: '1rem' }}>
+              <a 
+                href={`webcal://${typeof window !== 'undefined' ? window.location.host : ''}/api/calendar?userId=${profile.id}`}
+                className="btn-outline"
+                style={{ fontSize: '0.8rem', padding: '0.5rem 1rem', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', color: 'var(--neon-green)', borderColor: 'var(--neon-green)' }}
+              >
+                📅 Sync Classes to Calendar
+              </a>
+            </div>
+          )}
         </div>
         <div className="campus-kpis">
           <div className="kpi-pill premium-glass">
