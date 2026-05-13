@@ -1,10 +1,10 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const getResend = () => new Resend(process.env.RESEND_API_KEY || "re_placeholder");
 const FROM = process.env.RESEND_FROM_EMAIL || "WealthWise Junior <onboarding@resend.dev>";
 
 export async function sendWelcomeEmail(to: string, name: string, rollNumber: string) {
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: `Welcome to WealthWise Junior, ${name}! 🎓`,
@@ -46,7 +46,7 @@ export async function sendSubscriptionConfirmEmail(
   plan === "annual" ? nextDate.setFullYear(nextDate.getFullYear() + 1) : nextDate.setMonth(nextDate.getMonth() + 1);
   const nextRenewal = nextDate.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
 
-  return resend.emails.send({
+  return getResend().emails.send({
     from: FROM,
     to,
     subject: `Payment confirmed — ${planLabel} activated ✅`,
