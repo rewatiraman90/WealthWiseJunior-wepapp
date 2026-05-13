@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [agentLogs, setAgentLogs] = useState<any[]>([]);
   const [agentLoading, setAgentLoading] = useState(false);
   const [runningAgent, setRunningAgent] = useState<string | null>(null);
+  const [agentError, setAgentError] = useState<string | null>(null);
 
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
@@ -131,13 +132,22 @@ export default function AdminDashboard() {
 
   const runAgent = async (agent: string) => {
     setRunningAgent(agent);
-    const { data: { session } } = await supabase.auth.getSession();
-    await fetch("/api/agents/run", {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
-      body: JSON.stringify({ agent }),
-    });
-    await fetchAgentLogs();
+    setAgentError(null);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch("/api/agents/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+        body: JSON.stringify({ agent }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        setAgentError(`Agent failed: ${err.error || res.statusText}`);
+      }
+      await fetchAgentLogs();
+    } catch (e: any) {
+      setAgentError(`Network error: ${e.message}`);
+    }
     setRunningAgent(null);
   };
 
@@ -390,6 +400,12 @@ export default function AdminDashboard() {
           </div>
 
           {/* Agent Logs */}
+          {agentError && (
+            <div style={{ padding: "1rem 1.25rem", borderRadius: "1rem", background: "rgba(255,68,102,0.08)", border: "1px solid rgba(255,68,102,0.3)", color: "#FF4466", fontSize: "0.85rem", fontWeight: 700 }}>
+              ⚠️ {agentError}
+            </div>
+          )}
+
           {agentLoading ? (
             <p style={{ color: "var(--muted)", textAlign: "center" }}>Loading agent logs…</p>
           ) : agentLogs.length === 0 ? (
