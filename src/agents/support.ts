@@ -22,7 +22,7 @@ Always respond in this exact JSON format:
     {
       "id": "action_1",
       "title": "Reply to [name]: [subject]",
-      "description": "Draft reply text here",
+      "description": "ISSUE: What the customer asked. DRAFT REPLY: Full ready-to-send email reply. HOW TO SEND: Open your email, compose to the customer email address, copy the subject and body above and send.",
       "priority": "high|medium|low",
       "type": "email",
       "payload": { "to": "email", "subject": "...", "body": "..." }

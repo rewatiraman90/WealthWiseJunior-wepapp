@@ -22,7 +22,7 @@ Always respond in this exact JSON format:
     {
       "id": "action_1",
       "title": "Short title",
-      "description": "Full ready-to-publish content or recommendation",
+      "description": "CONTENT/RECOMMENDATION: Full ready-to-use text. HOW TO PUBLISH: Exact steps — which platform to open, what to paste, which hashtags to add, best time to post, etc.",
       "priority": "high|medium|low",
       "type": "content|report|alert",
       "payload": { "platform": "instagram|linkedin|twitter|whatsapp|blog", "content": "..." }

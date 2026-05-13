@@ -12,14 +12,14 @@ Always respond in this exact JSON format:
     {
       "id": "action_1",
       "title": "Short title",
-      "description": "What you will do and why",
+      "description": "WHAT the issue is and WHY it matters. Then under 'HOW TO FIX:' give exact step-by-step manual instructions the CEO can follow — include exact commands, URLs, values, and file paths where relevant.",
       "priority": "high|medium|low",
       "type": "code_fix|alert|report",
       "payload": {}
     }
   ]
 }
-Only include real issues. Do not make up problems. Be concise and practical.`;
+Only include real issues. Do not make up problems. Always include exact fix instructions so the CEO knows what to do after approving.`;
 
 function checkEnvVars(): string {
   const required = [

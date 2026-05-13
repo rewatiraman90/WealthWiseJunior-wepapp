@@ -19,7 +19,7 @@ Always respond in this exact JSON format:
     {
       "id": "action_1",
       "title": "Short title",
-      "description": "What you recommend and why",
+      "description": "FINDING: What the financial data shows. WHY IT MATTERS: Impact on revenue or growth. HOW TO ACT: Exact steps the CEO should take — e.g. log into PayU dashboard, check Supabase table, contact specific users, etc.",
       "priority": "high|medium|low",
       "type": "report|alert",
       "payload": {}
