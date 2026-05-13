@@ -296,7 +296,10 @@ export default function AiTeacherFloat({ grade, topic, context, studentName }: P
           <div className="sft-av">🎓</div>
           <div className="sft-info">
             <div className="sft-name">Sir <span className="sft-ai-tag">AI</span></div>
-            <div className="sft-sub">Class {grade} · {topic.slice(0, 26)}{topic.length > 26 ? "…" : ""}</div>
+            <div className="sft-sub">
+              {({5:"Explorer",6:"Saver",7:"Planner",8:"Strategist",9:"Analyst",10:"Investor",11:"Architect",12:"Master"} as Record<number,string>)[grade] || `Level ${grade}`}
+              {" · "}{topic.slice(0, 22)}{topic.length > 22 ? "…" : ""}
+            </div>
           </div>
           <div className="sft-hdr-right">
             {/* Auto-speak toggle */}

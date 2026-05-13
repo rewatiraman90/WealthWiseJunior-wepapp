@@ -33,6 +33,7 @@ export function useProfile() {
           // Admin bypass logic: if is admin, always force isSubscriber to true
           setProfile({
             ...parsed,
+            joinedDate: parsed.joinedDate || parsed.created_at || new Date().toISOString(),
             isSubscriber: isAdmin ? true : parsed.isSubscriber,
             isAdmin,
             id: session?.user?.id || parsed.id

@@ -3,6 +3,17 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
+const LEVEL_MAP: Record<number, { name: string; level: number }> = {
+  5:  { name: "Explorer",   level: 1 },
+  6:  { name: "Saver",      level: 2 },
+  7:  { name: "Planner",    level: 3 },
+  8:  { name: "Strategist", level: 4 },
+  9:  { name: "Analyst",    level: 5 },
+  10: { name: "Investor",   level: 6 },
+  11: { name: "Architect",  level: 7 },
+  12: { name: "Master",     level: 8 },
+};
+
 // City abbreviations for roll number
 const CITY_CODES: Record<string, string> = {
   bangalore: 'BLR', mumbai: 'MUM', delhi: 'DEL', pune: 'PUN',
@@ -384,15 +395,20 @@ function OnboardingContent() {
                 />
               </div>
               <div className="input-group">
-                <label>Class / Grade</label>
+                <label>Your Starting Level</label>
                 <select
                   required value={formData.grade}
                   onChange={e => setFormData({ ...formData, grade: e.target.value })}
                 >
-                  <option value="">Select</option>
-                  {[5, 6, 7, 8, 9, 10, 11, 12].map(g => (
-                    <option key={g} value={g}>Class {g}</option>
-                  ))}
+                  <option value="">Select your level</option>
+                  {[5, 6, 7, 8, 9, 10, 11, 12].map(g => {
+                    const lvl = LEVEL_MAP[g];
+                    return (
+                      <option key={g} value={g}>
+                        Level {lvl.level} — {lvl.name} (Class {g})
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
             </div>
@@ -464,8 +480,9 @@ function OnboardingContent() {
                 </span>
               </div>
               <div className="plan-roll-preview">
-                <span className="roll-label">Your Roll No.</span>
+                <span className="roll-label">Your Level & Roll No.</span>
                 <span className="roll-num subscriber-roll">
+                  {formData.grade ? `${LEVEL_MAP[parseInt(formData.grade)]?.name || "Explorer"} — ` : ""}
                   WWJ-{formData.grade}{formData.city.slice(0, 3).toUpperCase()}26-???? <span className="blue-tick-preview">✓</span>
                 </span>
               </div>

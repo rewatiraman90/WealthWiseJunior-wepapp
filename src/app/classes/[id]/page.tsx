@@ -2,7 +2,18 @@
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
-import { getClassById, MONTHS } from "@/data/videoClasses";
+import { getClassById } from "@/data/videoClasses";
+
+const LEVEL_MAP: Record<number, string> = {
+  5: "Explorer", 6: "Saver", 7: "Planner", 8: "Strategist",
+  9: "Analyst", 10: "Investor", 11: "Architect", 12: "Master",
+};
+
+const MODULE_NAMES = [
+  "Money Foundations", "Saving & Budgeting", "Banking Basics", "Income & Careers",
+  "Smart Spending", "Investing Intro", "Stock Markets", "Financial Planning",
+  "Business & Enterprise", "Wealth Building",
+];
 
 const STORAGE_KEY = "ww_attended_classes";
 
@@ -54,7 +65,8 @@ export default function VideoClassPage() {
         </div>
     );
 
-    const monthName = MONTHS[cls.month - 1];
+    const levelName = LEVEL_MAP[cls.grade] || "Explorer";
+    const moduleName = MODULE_NAMES[cls.month - 1] || `Module ${cls.month}`;
 
     function handleAnswer(qi: number, opt: number) {
         if (submitted) return;
@@ -68,7 +80,12 @@ export default function VideoClassPage() {
         const pass = correctCount >= 2;
         setSubmitted(true);
         setPassed(pass);
-        if (pass && !attended) { markAttended(safeCls.id); setAttended(true); }
+        if (pass && !attended) {
+          markAttended(safeCls.id);
+          setAttended(true);
+          // Refresh page attendance state so module completion recalculates
+          window.dispatchEvent(new Event("storage"));
+        }
     }
 
     function handleRetry() {
@@ -85,7 +102,7 @@ export default function VideoClassPage() {
             <div className="vp-breadcrumb">
                 <Link href="/classes" className="back-link">← Weekly Schedule</Link>
                 <span className="bc-sep">/</span>
-                <span className="bc-cur">Class {cls.grade} · {monthName} · Week {cls.week} · {cls.day}</span>
+                <span className="bc-cur">{levelName} · {moduleName} · Week {cls.week} · {cls.day}</span>
             </div>
 
             {/* ATTENDED BANNER */}
@@ -115,9 +132,9 @@ export default function VideoClassPage() {
                         <div className="vi-top">
                             <div>
                                 <div className="vi-meta">
-                                    <span className="vi-grade" style={{ borderColor: dayColor, color: dayColor }}>Class {cls.grade}</span>
+                                    <span className="vi-grade" style={{ borderColor: dayColor, color: dayColor }}>{levelName}</span>
                                     <span className="vi-day" style={{ color: dayColor }}>{cls.day === 'Mon' ? '📖 Concept Day' : cls.day === 'Wed' ? '🔬 Deep Dive' : '🎯 Practice Day'}</span>
-                                    <span className="vi-month">{monthName} · Week {cls.week}</span>
+                                    <span className="vi-month">{moduleName} · Week {cls.week}</span>
                                 </div>
                                 <h1 className="vi-title">{cls.topic}</h1>
                                 <p className="vi-desc">{cls.description}</p>
@@ -222,9 +239,10 @@ export default function VideoClassPage() {
                                         {passed ? (
                                             <>
                                                 <div className="rb-icon">🏆</div>
-                                                <h3 className="rb-title">Excellent! Attendance Marked!</h3>
-                                                <p className="rb-body">You scored {answers.filter((a, i) => a === cls.assessment[i].answer).length}/3. Your attendance for this class is recorded.</p>
-                                                <Link href="/classes" className="btn-neon rb-btn">← Back to Schedule</Link>
+                                                <h3 className="rb-title">Excellent! Session Completed!</h3>
+                                                <p className="rb-body">You scored {answers.filter((a, i) => a === cls.assessment[i].answer).length}/3. Your attendance for this session is recorded.</p>
+                                                <p className="rb-note">Please review or retake your assessment to achieve full marks and strive for excellence in each activity.</p>
+                                                <Link href="/classes" className="btn-neon rb-btn">← Back to My Path</Link>
                                             </>
                                         ) : (
                                             <>
@@ -328,6 +346,7 @@ export default function VideoClassPage() {
         .rb-icon { font-size:2.5rem; }
         .rb-title { font-size:1.05rem; font-weight:900; color:var(--foreground); }
         .rb-body { font-size:.82rem; color:var(--muted); line-height:1.6; }
+        .rb-note { font-size:.76rem; color:var(--primary-glow); font-weight:600; line-height:1.55; padding:.6rem .8rem; border-radius:.6rem; background:rgba(108,99,255,.08); border:1px solid rgba(108,99,255,.2); }
         .rb-btn { display:inline-block; text-decoration:none; font-size:.85rem; padding:.65rem 1.5rem; margin-top:.3rem; border-radius:2rem; }
         .progress-mini { padding:1.25rem; border-radius:1.25rem; display:flex; flex-direction:column; gap:.6rem; }
         .pm-title { font-size:.72rem; font-weight:900; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.25rem; }
