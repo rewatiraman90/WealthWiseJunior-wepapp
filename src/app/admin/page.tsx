@@ -32,7 +32,12 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"users" | "feedback">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "feedback" | "agents">("users");
+
+  // ── AGENTS STATE ──
+  const [agentLogs, setAgentLogs] = useState<any[]>([]);
+  const [agentLoading, setAgentLoading] = useState(false);
+  const [runningAgent, setRunningAgent] = useState<string | null>(null);
 
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
@@ -115,6 +120,37 @@ export default function AdminDashboard() {
 
   const unreadCount = feedback.filter(f => f.status === "unread").length;
 
+  // ── AGENT FUNCTIONS ──
+  const fetchAgentLogs = async () => {
+    setAgentLoading(true);
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch("/api/agents/logs", { headers: { Authorization: `Bearer ${session?.access_token}` } });
+    if (res.ok) { const json = await res.json(); setAgentLogs(json.logs || []); }
+    setAgentLoading(false);
+  };
+
+  const runAgent = async (agent: string) => {
+    setRunningAgent(agent);
+    const { data: { session } } = await supabase.auth.getSession();
+    await fetch("/api/agents/run", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ agent }),
+    });
+    await fetchAgentLogs();
+    setRunningAgent(null);
+  };
+
+  const updateLogStatus = async (id: string, status: "approved" | "rejected") => {
+    const { data: { session } } = await supabase.auth.getSession();
+    await fetch("/api/agents/logs", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ id, status }),
+    });
+    setAgentLogs(prev => prev.map(l => l.id === id ? { ...l, status } : l));
+  };
+
   if (isLoading) return <div className="admin-loading">🔐 Verifying admin access...</div>;
   if (!isAuthorized) return null;
 
@@ -161,6 +197,15 @@ export default function AdminDashboard() {
           >
             📬 Feedback & Complaints
             {unreadCount > 0 && <span className="unread-dot">{unreadCount}</span>}
+          </button>
+          <button
+            className={`admin-tab ${activeTab === "agents" ? "active" : ""}`}
+            onClick={() => { setActiveTab("agents"); fetchAgentLogs(); }}
+          >
+            🤖 AI Agents (CEO Panel)
+            {agentLogs.filter(l => l.status === "pending").length > 0 && (
+              <span className="unread-dot">{agentLogs.filter(l => l.status === "pending").length}</span>
+            )}
           </button>
         </div>
       </div>
@@ -304,6 +349,133 @@ export default function AdminDashboard() {
               )}
             </div>
           )}
+        </div>
+      )}
+
+      {/* === AGENTS TAB === */}
+      {activeTab === "agents" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          {/* Run Agents Row */}
+          <div className="premium-glass" style={{ padding: "1.5rem", borderRadius: "1.5rem" }}>
+            <h3 style={{ fontWeight: 900, marginBottom: "0.5rem" }}>🤖 AI Agent Company — CEO Control Panel</h3>
+            <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: "1.25rem" }}>
+              Run any agent to get a briefing. Review findings and approve or reject proposed actions.
+            </p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "1rem" }}>
+              {[
+                { key: "engineer", label: "⚙️ Engineer", desc: "Code health & fixes" },
+                { key: "support", label: "💬 Support", desc: "Customer queries" },
+                { key: "accounting", label: "💰 Accounting", desc: "Revenue & MRR" },
+                { key: "marketing", label: "📣 Marketing", desc: "Content & growth" },
+              ].map(a => (
+                <button
+                  key={a.key}
+                  onClick={() => runAgent(a.key)}
+                  disabled={!!runningAgent}
+                  style={{
+                    padding: "1rem", borderRadius: "1rem", border: "1px solid var(--border)",
+                    background: runningAgent === a.key ? "rgba(108,99,255,0.2)" : "rgba(108,99,255,0.06)",
+                    cursor: runningAgent ? "not-allowed" : "pointer", textAlign: "center",
+                    color: "var(--foreground)", fontFamily: "inherit",
+                  }}
+                >
+                  <div style={{ fontSize: "1.3rem" }}>{a.label.split(" ")[0]}</div>
+                  <div style={{ fontWeight: 800, fontSize: "0.85rem", marginTop: "0.3rem" }}>{a.label.split(" ")[1]}</div>
+                  <div style={{ color: "var(--muted)", fontSize: "0.72rem" }}>
+                    {runningAgent === a.key ? "Running…" : a.desc}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Agent Logs */}
+          {agentLoading ? (
+            <p style={{ color: "var(--muted)", textAlign: "center" }}>Loading agent logs…</p>
+          ) : agentLogs.length === 0 ? (
+            <div className="premium-glass" style={{ padding: "2rem", borderRadius: "1.5rem", textAlign: "center", color: "var(--muted)" }}>
+              No agent runs yet. Click an agent above to run it.
+            </div>
+          ) : agentLogs.map(log => (
+            <div key={log.id} className="premium-glass" style={{ padding: "1.5rem", borderRadius: "1.5rem", border: log.status === "pending" ? "1px solid rgba(108,99,255,0.4)" : "1px solid var(--border)" }}>
+              {/* Log Header */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1rem", flexWrap: "wrap", gap: "0.5rem" }}>
+                <div>
+                  <span style={{ fontSize: "0.7rem", fontWeight: 900, textTransform: "uppercase", color: "var(--muted)", letterSpacing: "0.1em" }}>
+                    {log.agent} agent
+                  </span>
+                  <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "2px" }}>
+                    {new Date(log.created_at).toLocaleString("en-IN")}
+                  </p>
+                </div>
+                <span style={{
+                  fontSize: "0.72rem", fontWeight: 900, padding: "0.25rem 0.75rem", borderRadius: "2rem",
+                  background: log.status === "pending" ? "rgba(244,165,53,0.15)" : log.status === "approved" ? "rgba(0,229,160,0.15)" : "rgba(255,68,102,0.12)",
+                  color: log.status === "pending" ? "#F4A535" : log.status === "approved" ? "var(--neon-green)" : "#FF4466",
+                }}>
+                  {log.status === "pending" ? "⏳ Awaiting CEO Approval" : log.status === "approved" ? "✅ Approved" : "❌ Rejected"}
+                </span>
+              </div>
+
+              {/* Summary */}
+              <p style={{ fontSize: "0.88rem", lineHeight: 1.6, marginBottom: "1rem" }}>{log.summary}</p>
+
+              {/* Findings */}
+              {log.findings?.length > 0 && (
+                <div style={{ marginBottom: "1rem" }}>
+                  <p style={{ fontSize: "0.72rem", fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.5rem" }}>Findings</p>
+                  <ul style={{ paddingLeft: "1.2rem", display: "flex", flexDirection: "column", gap: "0.3rem" }}>
+                    {log.findings.map((f: string, i: number) => (
+                      <li key={i} style={{ fontSize: "0.82rem", color: "var(--foreground)" }}>{f}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* Proposed Actions */}
+              {log.proposed_actions?.length > 0 && (
+                <div style={{ marginBottom: "1rem" }}>
+                  <p style={{ fontSize: "0.72rem", fontWeight: 900, color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: "0.75rem" }}>Proposed Actions</p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "0.6rem" }}>
+                    {log.proposed_actions.map((a: any) => (
+                      <div key={a.id} style={{
+                        padding: "0.85rem 1rem", borderRadius: "0.85rem", border: "1px solid var(--border)",
+                        background: a.priority === "high" ? "rgba(255,68,102,0.05)" : a.priority === "medium" ? "rgba(244,165,53,0.05)" : "rgba(0,229,160,0.04)",
+                      }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
+                          <span style={{ fontWeight: 800, fontSize: "0.85rem" }}>{a.title}</span>
+                          <span style={{
+                            fontSize: "0.65rem", fontWeight: 900, padding: "0.15rem 0.5rem", borderRadius: "1rem",
+                            background: a.priority === "high" ? "rgba(255,68,102,0.15)" : a.priority === "medium" ? "rgba(244,165,53,0.15)" : "rgba(0,229,160,0.12)",
+                            color: a.priority === "high" ? "#FF4466" : a.priority === "medium" ? "#F4A535" : "var(--neon-green)",
+                          }}>{a.priority}</span>
+                        </div>
+                        <p style={{ fontSize: "0.78rem", color: "var(--muted)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{a.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* CEO Approve/Reject */}
+              {log.status === "pending" && (
+                <div style={{ display: "flex", gap: "0.75rem", marginTop: "0.5rem" }}>
+                  <button
+                    onClick={() => updateLogStatus(log.id, "approved")}
+                    style={{ padding: "0.6rem 1.5rem", borderRadius: "2rem", border: "none", background: "var(--neon-green)", color: "#0E1638", fontWeight: 900, cursor: "pointer", fontSize: "0.82rem", fontFamily: "inherit" }}
+                  >
+                    ✅ Approve
+                  </button>
+                  <button
+                    onClick={() => updateLogStatus(log.id, "rejected")}
+                    style={{ padding: "0.6rem 1.5rem", borderRadius: "2rem", border: "1px solid rgba(255,68,102,0.4)", background: "transparent", color: "#FF4466", fontWeight: 900, cursor: "pointer", fontSize: "0.82rem", fontFamily: "inherit" }}
+                  >
+                    ❌ Reject
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       )}
 

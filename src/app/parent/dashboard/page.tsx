@@ -3,22 +3,37 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { mockLeaderboard } from "@/data/user";
 import { useJarContext } from "@/components/JarContext";
+import { supabase } from "@/lib/supabaseClient";
 
-// ─── MOCK DATA ───────────────────────────────────────────────────────────────
+type LiveProfile = {
+  name: string;
+  grade: string;
+  school: string;
+  city: string;
+  rollNumber: string;
+  avatarUrl: string | null;
+  xp: number;
+  streak: number;
+  isSubscriber: boolean;
+  joinedAt: string;
+};
+type LiveRanks = { cityRank: number | null; cityTotal: number; overallRank: number | null };
 
-const CHILD = {
-  name: "Aarav Sharma",
-  grade: 7,
-  school: "Delhi Public School, Bangalore",
-  city: "Bangalore",
+// ─── FALLBACK MOCK DATA (used until real data loads) ─────────────────────────
+
+const CHILD_FALLBACK = {
+  name: "Loading…",
+  grade: 0,
+  school: "—",
+  city: "—",
   avatar: "🧒",
-  xp: 2450,
+  xp: 0,
   xpMax: 3000,
-  streak: 21,
-  rank: 4, // overall
-  cityRank: 2,
-  cityTotal: 847,
-  joinDate: "March 2025",
+  streak: 0,
+  rank: null,
+  cityRank: null,
+  cityTotal: 0,
+  joinDate: "—",
 };
 
 const ATTENDANCE = {
@@ -119,13 +134,52 @@ const AI_WARNINGS: Array<{ date: string; type: "warning" | "info" | "praise"; me
 ];
 
 const CITY_STUDENTS = [...mockLeaderboard].sort((a, b) => b.xp - a.xp);
-const MY_CITY_RANK = CITY_STUDENTS.findIndex(s => s.name === "Arjun Mehta") + 1; // closest mock
 
 // ─── COMPONENT ───────────────────────────────────────────────────────────────
 
 export default function ParentDashboard() {
   const [tab, setTab] = useState<"overview" | "syllabus" | "money" | "activity" | "alerts">("overview");
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
+
+  const [liveProfile, setLiveProfile] = useState<LiveProfile | null>(null);
+  const [liveRanks, setLiveRanks] = useState<LiveRanks | null>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchDashboard() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.access_token) { setProfileLoading(false); return; }
+      const res = await fetch("/api/parent/dashboard", {
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (res.ok) {
+        const json = await res.json();
+        setLiveProfile(json.profile);
+        setLiveRanks(json.ranks);
+      }
+      setProfileLoading(false);
+    }
+    fetchDashboard();
+  }, []);
+
+  const CHILD = liveProfile
+    ? {
+        name: liveProfile.name,
+        grade: parseInt(liveProfile.grade) || 0,
+        school: liveProfile.school,
+        city: liveProfile.city,
+        avatar: liveProfile.avatarUrl || "🧒",
+        xp: liveProfile.xp,
+        xpMax: 3000,
+        streak: liveProfile.streak,
+        rank: liveRanks?.overallRank ?? null,
+        cityRank: liveRanks?.cityRank ?? null,
+        cityTotal: liveRanks?.cityTotal ?? 0,
+        joinDate: liveProfile.joinedAt
+          ? new Date(liveProfile.joinedAt).toLocaleDateString("en-IN", { month: "long", year: "numeric" })
+          : "—",
+      }
+    : CHILD_FALLBACK;
 
   const { weeklyEarning, parentMatch, updateWeeklyEarning, updateParentMatch } = useJarContext();
   const [isEditingJars, setIsEditingJars] = useState(false);
@@ -152,6 +206,17 @@ export default function ParentDashboard() {
   const completedModules = SYLLABUS.modules.filter(m => m.status === "passed").length;
   const totalModules = SYLLABUS.total;
 
+  if (profileLoading) {
+    return (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "center", minHeight: "60vh" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>📊</div>
+          <p style={{ color: "var(--muted)", fontWeight: 700 }}>Loading dashboard…</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="pd-root">
       {/* ── TOP HEADER ── */}
@@ -168,12 +233,12 @@ export default function ParentDashboard() {
         </div>
         <div className="pd-rank-badges">
           <div className="rank-badge-card premium-glass">
-            <div className="rb-num gradient-text">#{CHILD.cityRank}</div>
+            <div className="rb-num gradient-text">{CHILD.cityRank ? `#${CHILD.cityRank}` : "—"}</div>
             <div className="rb-label">in {CHILD.city}</div>
             <div className="rb-sub">out of {CHILD.cityTotal} students</div>
           </div>
           <div className="rank-badge-card premium-glass">
-            <div className="rb-num" style={{ color: "var(--neon-green)" }}>#{CHILD.rank}</div>
+            <div className="rb-num" style={{ color: "var(--neon-green)" }}>{CHILD.rank ? `#${CHILD.rank}` : "—"}</div>
             <div className="rb-label">Overall Rank</div>
             <div className="rb-sub">National</div>
           </div>
@@ -271,7 +336,7 @@ export default function ParentDashboard() {
             <div className="panel premium-glass">
               <h3 className="panel-title">🏙️ {CHILD.city} Leaderboard</h3>
               <div className="city-rank-header">
-                <span className="city-rank-big gradient-text">#{CHILD.cityRank}</span>
+                <span className="city-rank-big gradient-text">{CHILD.cityRank ? `#${CHILD.cityRank}` : "—"}</span>
                 <span className="city-rank-sub">Your child's rank among {CHILD.cityTotal} students in {CHILD.city}</span>
               </div>
               <div className="lb-list">
