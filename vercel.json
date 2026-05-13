@@ -1,0 +1,20 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/agents?agent=engineer",
+      "schedule": "0 3 * * *"
+    },
+    {
+      "path": "/api/cron/agents?agent=support",
+      "schedule": "0 */6 * * *"
+    },
+    {
+      "path": "/api/cron/agents?agent=accounting",
+      "schedule": "0 2 * * 1"
+    },
+    {
+      "path": "/api/cron/agents?agent=marketing",
+      "schedule": "0 2 * * 0"
+    }
+  ]
+}
