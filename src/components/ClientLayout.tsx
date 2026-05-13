@@ -21,9 +21,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const router = useRouter();
 
   // Define public routes that don't need authentication
-  const publicRoutes = ["/", "/parent", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
+  const publicRoutes = ["/", "/parent", "/students", "/apply", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
   const isPublicRoute = publicRoutes.includes(path);
-  const isLandingPage = path === "/parent" || path === "/" || path === "/onboarding";
+  const isLandingPage = path === "/parent" || path === "/" || path === "/students" || path === "/onboarding";
 
   // Read student profile from localStorage
   const [profile, setProfile] = useState<{
