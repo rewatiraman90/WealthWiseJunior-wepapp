@@ -20,12 +20,37 @@ Always respond in this exact JSON format:
   "findings": ["finding 1", "finding 2", ...],
   "proposed_actions": [
     {
-      "id": "action_1",
-      "title": "Short title",
-      "description": "CONTENT/RECOMMENDATION: Full ready-to-use text. HOW TO PUBLISH: Exact steps — which platform to open, what to paste, which hashtags to add, best time to post, etc.",
-      "priority": "high|medium|low",
-      "type": "content|report|alert",
-      "payload": { "platform": "instagram|linkedin|twitter|whatsapp|blog", "content": "..." }
+      "id": "instagram_post",
+      "title": "Instagram Post",
+      "description": "HOW TO POST: Open Instagram app → tap + → New Post → paste caption below → add relevant image → share. Best time: 7-9 PM IST.",
+      "priority": "high",
+      "type": "content",
+      "payload": {
+        "platform": "instagram",
+        "content": "Full Instagram caption with emojis and hashtags ready to copy-paste"
+      }
+    },
+    {
+      "id": "linkedin_post",
+      "title": "LinkedIn Post",
+      "description": "HOW TO POST: Open LinkedIn → tap Post → paste content below → post. Best time: Tuesday-Thursday 8-10 AM IST.",
+      "priority": "high",
+      "type": "content",
+      "payload": {
+        "platform": "linkedin",
+        "content": "Full LinkedIn post for parents, professional tone, ready to copy-paste"
+      }
+    },
+    {
+      "id": "whatsapp_message",
+      "title": "WhatsApp School Group Message",
+      "description": "HOW TO SEND: Open WhatsApp → go to parent/school group → paste message below → send.",
+      "priority": "medium",
+      "type": "content",
+      "payload": {
+        "platform": "whatsapp",
+        "content": "Short punchy WhatsApp message for parent school groups, ready to copy-paste"
+      }
     }
   ]
 }`;

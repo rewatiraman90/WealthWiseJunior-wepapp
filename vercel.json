@@ -15,6 +15,10 @@
     {
       "path": "/api/cron/agents?agent=marketing",
       "schedule": "0 4 * * 0"
+    },
+    {
+      "path": "/api/cron/enrollment",
+      "schedule": "0 5 * * 3"
     }
   ]
 }

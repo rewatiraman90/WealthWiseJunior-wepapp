@@ -461,7 +461,12 @@ export default function AdminDashboard() {
                         background: a.priority === "high" ? "rgba(255,68,102,0.05)" : a.priority === "medium" ? "rgba(244,165,53,0.05)" : "rgba(0,229,160,0.04)",
                       }}>
                         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.35rem" }}>
-                          <span style={{ fontWeight: 800, fontSize: "0.85rem" }}>{a.title}</span>
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span style={{ fontWeight: 800, fontSize: "0.85rem" }}>
+                              {a.payload?.platform === "instagram" ? "📸 " : a.payload?.platform === "linkedin" ? "💼 " : a.payload?.platform === "whatsapp" ? "💬 " : ""}
+                              {a.title}
+                            </span>
+                          </div>
                           <span style={{
                             fontSize: "0.65rem", fontWeight: 900, padding: "0.15rem 0.5rem", borderRadius: "1rem",
                             background: a.priority === "high" ? "rgba(255,68,102,0.15)" : a.priority === "medium" ? "rgba(244,165,53,0.15)" : "rgba(0,229,160,0.12)",
@@ -469,6 +474,29 @@ export default function AdminDashboard() {
                           }}>{a.priority}</span>
                         </div>
                         <p style={{ fontSize: "0.78rem", color: "var(--muted)", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{a.description}</p>
+
+                        {/* Copy & Post button for marketing content */}
+                        {a.payload?.content && (
+                          <div style={{ marginTop: "0.75rem", background: "rgba(0,0,0,0.2)", borderRadius: "0.75rem", padding: "0.85rem 1rem" }}>
+                            <p style={{ fontSize: "0.75rem", color: "var(--muted)", fontWeight: 700, marginBottom: "0.5rem", textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                              Ready-to-post content
+                            </p>
+                            <p style={{ fontSize: "0.82rem", lineHeight: 1.7, whiteSpace: "pre-wrap", color: "var(--foreground)", marginBottom: "0.75rem" }}>
+                              {a.payload.content}
+                            </p>
+                            <button
+                              onClick={() => {
+                                navigator.clipboard.writeText(a.payload.content);
+                                const btn = document.getElementById(`copy-${log.id}-${a.id}`);
+                                if (btn) { btn.textContent = "✅ Copied!"; setTimeout(() => { btn.textContent = `📋 Copy for ${a.payload.platform}`; }, 2000); }
+                              }}
+                              id={`copy-${log.id}-${a.id}`}
+                              style={{ padding: "0.5rem 1.1rem", borderRadius: "2rem", border: "1px solid rgba(108,99,255,0.4)", background: "rgba(108,99,255,0.1)", color: "var(--primary-glow)", fontWeight: 800, cursor: "pointer", fontSize: "0.75rem", fontFamily: "inherit" }}
+                            >
+                              📋 Copy for {a.payload.platform}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
