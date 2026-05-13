@@ -15,6 +15,10 @@ export interface StudentProfile {
   avatar?: string;
   isAdmin?: boolean;
   id?: string;
+  xp_total?: number;
+  current_streak?: number;
+  longest_streak?: number;
+  attended_count?: number;
 }
 
 export function useProfile() {
@@ -28,16 +32,35 @@ export function useProfile() {
         const userEmail = session?.user?.email;
         const isAdmin = userEmail === 'rayraman90@gmail.com';
 
-        // Check if user has scholarship access
         let hasScholarship = false;
+        let xp_total = 0;
+        let current_streak = 0;
+        let longest_streak = 0;
+        let attended_count = 0;
+
         if (session?.user?.id) {
-          const { data: scholarshipData } = await supabase
-            .from('scholarship_access')
-            .select('id')
-            .eq('user_id', session.user.id)
-            .is('revoked_at', null)
-            .maybeSingle();
-          hasScholarship = !!scholarshipData;
+          const [scholarshipResult, progressResult] = await Promise.all([
+            supabase
+              .from('scholarship_access')
+              .select('id')
+              .eq('user_id', session.user.id)
+              .is('revoked_at', null)
+              .maybeSingle(),
+            supabase
+              .from('profiles')
+              .select('xp_total, current_streak, longest_streak, attended_count')
+              .eq('id', session.user.id)
+              .maybeSingle(),
+          ]);
+
+          hasScholarship = !!scholarshipResult.data;
+
+          if (progressResult.data) {
+            xp_total = progressResult.data.xp_total ?? 0;
+            current_streak = progressResult.data.current_streak ?? 0;
+            longest_streak = progressResult.data.longest_streak ?? 0;
+            attended_count = progressResult.data.attended_count ?? 0;
+          }
         }
 
         const raw = localStorage.getItem('wwj_profile');
@@ -49,10 +72,13 @@ export function useProfile() {
             isSubscriber: isAdmin || hasScholarship || parsed.isSubscriber,
             hasScholarship,
             isAdmin,
-            id: session?.user?.id || parsed.id
+            id: session?.user?.id || parsed.id,
+            xp_total,
+            current_streak,
+            longest_streak,
+            attended_count,
           });
         } else if (isAdmin && session?.user) {
-          // Fallback if local storage is cleared but user is admin
           setProfile({
             name: 'Admin',
             age: '25',
@@ -63,7 +89,11 @@ export function useProfile() {
             isSubscriber: true,
             joinedDate: new Date().toISOString(),
             isAdmin: true,
-            id: session?.user?.id
+            id: session?.user?.id,
+            xp_total,
+            current_streak,
+            longest_streak,
+            attended_count,
           });
         }
       } catch (e) {

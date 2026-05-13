@@ -84,9 +84,24 @@ const wings = [
   }
 ];
 
+const LEVEL_MAP: Record<number, string> = {
+  5: "Explorer", 6: "Saver", 7: "Planner", 8: "Strategist",
+  9: "Analyst", 10: "Investor", 11: "Architect", 12: "Master",
+};
+
+const TOTAL_SESSIONS = 120; // 10 modules × 12 sessions
+
 export default function CampusDashboard() {
   const { profile } = useProfile();
   const isSubscriber = profile?.isSubscriber ?? false;
+
+  const xp = profile?.xp_total ?? 0;
+  const streak = profile?.current_streak ?? 0;
+  const attendedCount = profile?.attended_count ?? 0;
+  const progressPct = Math.min(100, Math.round((attendedCount / TOTAL_SESSIONS) * 100));
+  const grade = parseInt(profile?.grade ?? "5", 10);
+  const levelName = LEVEL_MAP[grade] ?? "Explorer";
+  const currentModule = Math.min(10, Math.floor(attendedCount / 12) + 1);
 
   // For Free Explorers, force-lock the premium wings
   const dashboardWings = wings.map(w => {
@@ -113,7 +128,7 @@ export default function CampusDashboard() {
             {new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 18 ? 'Good Afternoon' : 'Good Evening'}, {profile?.name?.split(' ')[0] || 'Student'} 👋
           </p>
           <h1 className="gradient-text campus-h1">MoneyMind Campus</h1>
-          <p className="campus-subtitle">Class {profile?.grade || '8'} · Module 1 · Financial Intelligence Academy</p>
+          <p className="campus-subtitle">{levelName} · Module {currentModule} · Financial Intelligence Academy</p>
           {isSubscriber && profile?.id && (
             <div style={{ marginTop: '1rem' }}>
               <a 
@@ -130,21 +145,21 @@ export default function CampusDashboard() {
           <div className="kpi-pill premium-glass">
             <span className="kpi-icon">🔥</span>
             <div className="kpi-body">
-              <span className="kpi-val">0</span>
+              <span className="kpi-val">{streak}</span>
               <span className="kpi-lbl">Day Streak</span>
             </div>
           </div>
           <div className="kpi-pill premium-glass">
-            <span className="kpi-icon">🏆</span>
+            <span className="kpi-icon">📚</span>
             <div className="kpi-body">
-              <span className="kpi-val">Unranked</span>
-              <span className="kpi-lbl">Class Rank</span>
+              <span className="kpi-val">{attendedCount}</span>
+              <span className="kpi-lbl">Classes Done</span>
             </div>
           </div>
           <div className="kpi-pill premium-glass">
             <span className="kpi-icon">💎</span>
             <div className="kpi-body">
-              <span className="kpi-val">0</span>
+              <span className="kpi-val">{xp.toLocaleString()}</span>
               <span className="kpi-lbl">WealthPoints</span>
             </div>
           </div>
@@ -155,16 +170,16 @@ export default function CampusDashboard() {
       <div className="progress-strip premium-glass">
         <div className="ps-label">
           <span className="ps-title">Annual Syllabus Progress</span>
-          <span className="ps-pct gradient-text">0%</span>
+          <span className="ps-pct gradient-text">{progressPct}%</span>
         </div>
         <div className="ps-track">
-          <div className="ps-fill" style={{ width: "0%" }} />
-          <div className="ps-dot" style={{ left: "0%" }} />
+          <div className="ps-fill" style={{ width: `${progressPct}%` }} />
+          <div className="ps-dot" style={{ left: `${progressPct}%` }} />
         </div>
         <div className="ps-meta">
           <span>Module 1 – Start</span>
-          <span className="ps-curr">📍 Module 1 (In Progress)</span>
-          <span>Module 2 🔒</span>
+          <span className="ps-curr">📍 Module {currentModule} (In Progress)</span>
+          <span>Module 10 – Finish</span>
         </div>
       </div>
 

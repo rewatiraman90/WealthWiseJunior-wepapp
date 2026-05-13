@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Link from "next/link";
 import { getClassById } from "@/data/videoClasses";
+import { supabase } from "@/lib/supabaseClient";
 
 const LEVEL_MAP: Record<number, string> = {
   5: "Explorer", 6: "Saver", 7: "Planner", 8: "Strategist",
@@ -37,6 +38,10 @@ export default function VideoClassPage() {
     const [submitted, setSubmitted] = useState(false);
     const [passed, setPassed] = useState(false);
     const [attended, setAttended] = useState(false);
+    const [xpEarned, setXpEarned] = useState(0);
+    const [moduleBonus, setModuleBonus] = useState(false);
+    const [newStreak, setNewStreak] = useState(0);
+    const [userId, setUserId] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -45,6 +50,12 @@ export default function VideoClassPage() {
             setWatchedEnough(true);
         }
     }, [cls]);
+
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setUserId(session?.user?.id ?? null);
+        });
+    }, []);
 
     // Allow assessment after 60s (simulated "watched enough")
     function startWatchTimer() {
@@ -73,7 +84,7 @@ export default function VideoClassPage() {
         setAnswers(prev => { const n = [...prev]; n[qi] = opt; return n; });
     }
 
-    function handleSubmit() {
+    async function handleSubmit() {
         if (answers.some(a => a === null)) return;
         const safeCls = cls!;
         const correctCount = safeCls.assessment.filter((q, i) => answers[i] === q.answer).length;
@@ -83,8 +94,33 @@ export default function VideoClassPage() {
         if (pass && !attended) {
           markAttended(safeCls.id);
           setAttended(true);
-          // Refresh page attendance state so module completion recalculates
           window.dispatchEvent(new Event("storage"));
+
+          // Sync to Supabase + award XP
+          if (userId) {
+            try {
+              const res = await fetch("/api/attendance", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  userId,
+                  classId: safeCls.id,
+                  grade: safeCls.grade,
+                  module: safeCls.month,
+                  week: safeCls.week,
+                  day: safeCls.day,
+                }),
+              });
+              const data = await res.json();
+              if (!data.alreadyRecorded) {
+                setXpEarned(data.xpEarned ?? 30);
+                setModuleBonus(data.moduleBonus ?? false);
+                setNewStreak(data.streak ?? 0);
+              }
+            } catch {
+              // XP sync failed silently — localStorage attendance already saved
+            }
+          }
         }
     }
 
@@ -241,6 +277,13 @@ export default function VideoClassPage() {
                                                 <div className="rb-icon">🏆</div>
                                                 <h3 className="rb-title">Excellent! Session Completed!</h3>
                                                 <p className="rb-body">You scored {answers.filter((a, i) => a === cls.assessment[i].answer).length}/3. Your attendance for this session is recorded.</p>
+                                                {xpEarned > 0 && (
+                                                  <div className="xp-toast">
+                                                    <span className="xp-main">+{xpEarned} WealthPoints earned!</span>
+                                                    {moduleBonus && <span className="xp-bonus">🎉 Module Complete Bonus: +100 XP</span>}
+                                                    {newStreak > 1 && <span className="xp-streak">🔥 {newStreak}-day streak!</span>}
+                                                  </div>
+                                                )}
                                                 <p className="rb-note">Please review or retake your assessment to achieve full marks and strive for excellence in each activity.</p>
                                                 <Link href="/classes" className="btn-neon rb-btn">← Back to My Path</Link>
                                             </>
@@ -348,6 +391,10 @@ export default function VideoClassPage() {
         .rb-body { font-size:.82rem; color:var(--muted); line-height:1.6; }
         .rb-note { font-size:.76rem; color:var(--primary-glow); font-weight:600; line-height:1.55; padding:.6rem .8rem; border-radius:.6rem; background:rgba(108,99,255,.08); border:1px solid rgba(108,99,255,.2); }
         .rb-btn { display:inline-block; text-decoration:none; font-size:.85rem; padding:.65rem 1.5rem; margin-top:.3rem; border-radius:2rem; }
+        .xp-toast { display:flex; flex-direction:column; align-items:center; gap:.3rem; padding:.75rem 1.25rem; border-radius:1rem; background:linear-gradient(135deg,rgba(108,99,255,.15),rgba(0,229,160,.1)); border:1px solid rgba(0,229,160,.3); width:100%; }
+        .xp-main { font-size:1.05rem; font-weight:900; color:var(--neon-green); }
+        .xp-bonus { font-size:.8rem; font-weight:700; color:var(--primary-glow); }
+        .xp-streak { font-size:.8rem; font-weight:700; color:#FFD166; }
         .progress-mini { padding:1.25rem; border-radius:1.25rem; display:flex; flex-direction:column; gap:.6rem; }
         .pm-title { font-size:.72rem; font-weight:900; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:.25rem; }
         .pm-row { display:flex; align-items:center; gap:.75rem; padding:.5rem .6rem; border-radius:.6rem; }
