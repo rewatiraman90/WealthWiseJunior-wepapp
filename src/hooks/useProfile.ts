@@ -10,6 +10,7 @@ export interface StudentProfile {
   city: string;
   rollNumber: string;
   isSubscriber: boolean;
+  hasScholarship?: boolean;
   joinedDate: string;
   avatar?: string;
   isAdmin?: boolean;
@@ -27,14 +28,26 @@ export function useProfile() {
         const userEmail = session?.user?.email;
         const isAdmin = userEmail === 'rayraman90@gmail.com';
 
+        // Check if user has scholarship access
+        let hasScholarship = false;
+        if (session?.user?.id) {
+          const { data: scholarshipData } = await supabase
+            .from('scholarship_access')
+            .select('id')
+            .eq('user_id', session.user.id)
+            .is('revoked_at', null)
+            .maybeSingle();
+          hasScholarship = !!scholarshipData;
+        }
+
         const raw = localStorage.getItem('wwj_profile');
         if (raw) {
           const parsed = JSON.parse(raw);
-          // Admin bypass logic: if is admin, always force isSubscriber to true
           setProfile({
             ...parsed,
             joinedDate: parsed.joinedDate || parsed.created_at || new Date().toISOString(),
-            isSubscriber: isAdmin ? true : parsed.isSubscriber,
+            isSubscriber: isAdmin || hasScholarship || parsed.isSubscriber,
+            hasScholarship,
             isAdmin,
             id: session?.user?.id || parsed.id
           });

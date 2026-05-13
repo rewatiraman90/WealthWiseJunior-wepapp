@@ -32,7 +32,17 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"users" | "feedback" | "agents">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "feedback" | "agents" | "scholarships">("users");
+
+  // ── SCHOLARSHIP STATE ──
+  const [schTab, setSchTab] = useState<"applications" | "grants">("applications");
+  const [applications, setApplications] = useState<any[]>([]);
+  const [grants, setGrants] = useState<any[]>([]);
+  const [schLoading, setSchLoading] = useState(false);
+  const [grantSearch, setGrantSearch] = useState("");
+  const [grantSearchResults, setGrantSearchResults] = useState<UserProfile[]>([]);
+  const [grantNote, setGrantNote] = useState("");
+  const [rejectNotes, setRejectNotes] = useState<Record<string, string>>({});
 
   // ── AGENTS STATE ──
   const [agentLogs, setAgentLogs] = useState<any[]>([]);
@@ -87,6 +97,51 @@ export default function AdminDashboard() {
     const newVal = !user.is_active;
     await supabase.from("profiles").update({ is_active: newVal }).eq("id", user.id);
     setUsers(prev => prev.map(u => u.id === user.id ? { ...u, is_active: newVal } : u));
+  };
+
+  const fetchScholarships = async () => {
+    setSchLoading(true);
+    const [{ data: apps }, { data: grs }] = await Promise.all([
+      supabase.from("scholarship_applications").select("*").order("submitted_at", { ascending: false }),
+      supabase.from("scholarship_access").select("*, profiles(name, grade, city, roll_number)").is("revoked_at", null).order("granted_at", { ascending: false }),
+    ]);
+    setApplications(apps || []);
+    setGrants(grs || []);
+    setSchLoading(false);
+  };
+
+  const approveApplication = async (app: any) => {
+    await supabase.from("scholarship_applications").update({ status: "approved", reviewed_at: new Date().toISOString() }).eq("id", app.id);
+    await supabase.from("scholarship_access").upsert({ user_id: app.user_id, granted_at: new Date().toISOString(), revoked_at: null, notes: `Approved application: ${app.application_type}` }, { onConflict: "user_id" });
+    setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: "approved" } : a));
+    fetchScholarships();
+  };
+
+  const rejectApplication = async (app: any) => {
+    const note = rejectNotes[app.id] || "";
+    await supabase.from("scholarship_applications").update({ status: "rejected", admin_notes: note, reviewed_at: new Date().toISOString() }).eq("id", app.id);
+    setApplications(prev => prev.map(a => a.id === app.id ? { ...a, status: "rejected", admin_notes: note } : a));
+  };
+
+  const grantDirectAccess = async (user: UserProfile) => {
+    await supabase.from("scholarship_access").upsert({ user_id: user.id, granted_at: new Date().toISOString(), revoked_at: null, notes: grantNote || "Direct admin grant" }, { onConflict: "user_id" });
+    setGrantNote("");
+    setGrantSearch("");
+    setGrantSearchResults([]);
+    fetchScholarships();
+  };
+
+  const revokeAccess = async (grant: any) => {
+    if (!confirm(`Revoke scholarship access?`)) return;
+    await supabase.from("scholarship_access").update({ revoked_at: new Date().toISOString() }).eq("id", grant.id);
+    setGrants(prev => prev.filter(g => g.id !== grant.id));
+  };
+
+  const searchGrantUsers = async (q: string) => {
+    setGrantSearch(q);
+    if (q.length < 2) { setGrantSearchResults([]); return; }
+    const { data } = await supabase.from("profiles").select("*").or(`name.ilike.%${q}%,roll_number.ilike.%${q}%`).limit(5);
+    setGrantSearchResults(data || []);
   };
 
   const deleteUser = async (userId: string) => {
@@ -193,6 +248,12 @@ export default function AdminDashboard() {
               </span>
               <span className="akpi-lbl">Unread Msgs</span>
             </div>
+            <div className="akpi premium-glass">
+              <span className="akpi-val" style={{ color: "#FFD166" }}>
+                {grants.length}
+              </span>
+              <span className="akpi-lbl">Scholars</span>
+            </div>
           </div>
         </div>
 
@@ -217,6 +278,15 @@ export default function AdminDashboard() {
             🤖 AI Agents (CEO Panel)
             {agentLogs.filter(l => l.status === "pending").length > 0 && (
               <span className="unread-dot">{agentLogs.filter(l => l.status === "pending").length}</span>
+            )}
+          </button>
+          <button
+            className={`admin-tab ${activeTab === "scholarships" ? "active" : ""}`}
+            onClick={() => { setActiveTab("scholarships"); fetchScholarships(); }}
+          >
+            🎓 Scholarships
+            {applications.filter(a => a.status === "pending").length > 0 && (
+              <span className="unread-dot">{applications.filter(a => a.status === "pending").length}</span>
             )}
           </button>
         </div>
@@ -522,6 +592,200 @@ export default function AdminDashboard() {
               )}
             </div>
           ))}
+        </div>
+      )}
+
+      {/* === SCHOLARSHIPS TAB === */}
+      {activeTab === "scholarships" && (
+        <div className="admin-section">
+          <div className="section-toolbar">
+            <div style={{ display: "flex", gap: "0.5rem" }}>
+              <button
+                className={`admin-tab ${schTab === "applications" ? "active" : ""}`}
+                onClick={() => setSchTab("applications")}
+                style={{ fontSize: "0.78rem" }}
+              >
+                📋 Applications
+                {applications.filter(a => a.status === "pending").length > 0 && (
+                  <span className="unread-dot">{applications.filter(a => a.status === "pending").length}</span>
+                )}
+              </button>
+              <button
+                className={`admin-tab ${schTab === "grants" ? "active" : ""}`}
+                onClick={() => setSchTab("grants")}
+                style={{ fontSize: "0.78rem" }}
+              >
+                🎁 Direct Grants ({grants.length} active)
+              </button>
+            </div>
+            <button className="btn-outline refresh-btn" onClick={fetchScholarships}>↻ Refresh</button>
+          </div>
+
+          {schLoading ? (
+            <div className="loading-msg">Loading scholarship data...</div>
+          ) : schTab === "applications" ? (
+            <div className="feedback-list">
+              {applications.length === 0 ? (
+                <div className="empty-feedback premium-glass">
+                  <span style={{ fontSize: "3rem" }}>🎓</span>
+                  <p>No scholarship applications yet. Share the <strong>/apply</strong> page link with students.</p>
+                </div>
+              ) : applications.map(app => (
+                <div key={app.id} className={`feedback-card premium-glass ${app.status === "pending" ? "unread" : ""}`}>
+                  <div className="fb-header">
+                    <div className="fb-meta">
+                      <span className={`fb-type-badge ${app.status === "approved" ? "feedback" : app.status === "rejected" ? "complaint" : "general"}`}>
+                        {app.status === "pending" ? "⏳ Pending" : app.status === "approved" ? "✅ Approved" : "❌ Rejected"}
+                      </span>
+                      <span className="fb-type-badge general">{app.application_type === "essay" ? "✍️ Essay" : "📄 Income Proof"}</span>
+                      <span className="fb-name">{app.name || "Unknown"}</span>
+                      <span className="fb-email">Class {app.grade} · {app.city}</span>
+                    </div>
+                    <span className="fb-date">{new Date(app.submitted_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}</span>
+                  </div>
+                  <h3 className="fb-subject">{app.school}</h3>
+                  {app.essay_text && (
+                    <p className="fb-message" style={{ fontStyle: "italic" }}>
+                      &ldquo;{app.essay_text.slice(0, 300)}{app.essay_text.length > 300 ? "…" : ""}&rdquo;
+                    </p>
+                  )}
+                  {app.proof_description && (
+                    <p className="fb-message">📄 Proof: {app.proof_description}</p>
+                  )}
+                  {app.proof_url && (
+                    <a href={app.proof_url} target="_blank" rel="noreferrer" style={{ color: "var(--primary-glow)", fontSize: "0.8rem", fontWeight: 700 }}>
+                      View uploaded document →
+                    </a>
+                  )}
+                  {app.admin_notes && (
+                    <p style={{ fontSize: "0.75rem", color: "var(--muted)", marginTop: "0.5rem" }}>Admin note: {app.admin_notes}</p>
+                  )}
+                  {app.status === "pending" && (
+                    <div style={{ display: "flex", gap: "0.75rem", marginTop: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+                      <input
+                        type="text"
+                        placeholder="Optional note for rejection..."
+                        value={rejectNotes[app.id] || ""}
+                        onChange={e => setRejectNotes(prev => ({ ...prev, [app.id]: e.target.value }))}
+                        style={{ flex: 1, minWidth: "200px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border)", color: "white", padding: "0.5rem 0.9rem", borderRadius: "0.6rem", fontSize: "0.82rem", fontFamily: "inherit", outline: "none" }}
+                      />
+                      <button
+                        onClick={() => approveApplication(app)}
+                        style={{ padding: "0.5rem 1.4rem", borderRadius: "2rem", border: "none", background: "var(--neon-green)", color: "#0E1638", fontWeight: 900, cursor: "pointer", fontSize: "0.82rem", fontFamily: "inherit" }}
+                      >
+                        ✅ Approve & Grant Access
+                      </button>
+                      <button
+                        onClick={() => rejectApplication(app)}
+                        style={{ padding: "0.5rem 1.2rem", borderRadius: "2rem", border: "1px solid rgba(255,68,102,0.4)", background: "transparent", color: "#FF4466", fontWeight: 900, cursor: "pointer", fontSize: "0.82rem", fontFamily: "inherit" }}
+                      >
+                        ❌ Reject
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+              {/* Direct grant search */}
+              <div className="premium-glass" style={{ padding: "1.5rem", borderRadius: "1.25rem" }}>
+                <h3 style={{ fontWeight: 900, marginBottom: "0.75rem", color: "var(--foreground)" }}>
+                  🎁 Grant Scholarship Access Directly
+                </h3>
+                <p style={{ color: "var(--muted)", fontSize: "0.82rem", marginBottom: "1rem" }}>
+                  Search a student by name or roll number and grant them full access without a subscription.
+                </p>
+                <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+                  <div className="search-box" style={{ flex: 1, maxWidth: "320px" }}>
+                    <span>🔍</span>
+                    <input
+                      type="text"
+                      placeholder="Search by name or roll number..."
+                      value={grantSearch}
+                      onChange={e => searchGrantUsers(e.target.value)}
+                    />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Reason for grant (optional)..."
+                    value={grantNote}
+                    onChange={e => setGrantNote(e.target.value)}
+                    style={{ flex: 1, minWidth: "200px", background: "rgba(0,0,0,0.3)", border: "1px solid var(--border)", color: "white", padding: "0.6rem 1rem", borderRadius: "0.75rem", fontSize: "0.9rem", fontFamily: "inherit", outline: "none" }}
+                  />
+                </div>
+                {grantSearchResults.length > 0 && (
+                  <div style={{ marginTop: "0.75rem", display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                    {grantSearchResults.map(u => (
+                      <div key={u.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0.75rem 1rem", borderRadius: "0.75rem", background: "rgba(108,99,255,0.08)", border: "1px solid rgba(108,99,255,0.2)" }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <div className="user-avatar-mini">{u.name?.[0]?.toUpperCase() || "?"}</div>
+                          <div>
+                            <p style={{ fontWeight: 800, fontSize: "0.88rem", color: "var(--foreground)" }}>{u.name}</p>
+                            <p style={{ fontSize: "0.72rem", color: "var(--muted)" }}>Class {u.grade} · {u.city} · {u.roll_number}</p>
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => grantDirectAccess(u)}
+                          style={{ padding: "0.45rem 1.1rem", borderRadius: "2rem", border: "1px solid rgba(0,229,160,0.35)", background: "rgba(0,229,160,0.15)", color: "var(--neon-green)", fontWeight: 900, cursor: "pointer", fontSize: "0.78rem", fontFamily: "inherit" }}
+                        >
+                          🎓 Grant Access
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Active scholars list */}
+              <div className="table-wrap premium-glass">
+                <div style={{ padding: "1rem 1.5rem 0.5rem", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
+                  <h3 style={{ fontWeight: 900, color: "var(--foreground)", fontSize: "0.95rem" }}>
+                    🌟 Active Scholars — {grants.length} student{grants.length !== 1 ? "s" : ""} on scholarship
+                  </h3>
+                </div>
+                {grants.length === 0 ? (
+                  <div className="loading-msg">No active scholars yet.</div>
+                ) : (
+                  <table className="admin-table">
+                    <thead>
+                      <tr>
+                        <th>Student</th>
+                        <th>Grade</th>
+                        <th>City</th>
+                        <th>Roll No.</th>
+                        <th>Granted</th>
+                        <th>Notes</th>
+                        <th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {grants.map(g => (
+                        <tr key={g.id}>
+                          <td>
+                            <div className="user-cell">
+                              <div className="user-avatar-mini" style={{ background: "linear-gradient(135deg,#FFD166,#FF6B6B)" }}>
+                                {(g.profiles as any)?.name?.[0]?.toUpperCase() || "?"}
+                              </div>
+                              <span className="user-name">{(g.profiles as any)?.name || "Unknown"}</span>
+                            </div>
+                          </td>
+                          <td><span className="grade-badge">Class {(g.profiles as any)?.grade}</span></td>
+                          <td>{(g.profiles as any)?.city || "—"}</td>
+                          <td className="roll-cell">{(g.profiles as any)?.roll_number || "—"}</td>
+                          <td className="date-cell">{new Date(g.granted_at).toLocaleDateString("en-IN")}</td>
+                          <td style={{ fontSize: "0.75rem", color: "var(--muted)", maxWidth: "180px" }}>{g.notes || "—"}</td>
+                          <td>
+                            <button className="btn-delete" onClick={() => revokeAccess(g)}>Revoke</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

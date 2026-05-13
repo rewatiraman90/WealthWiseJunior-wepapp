@@ -49,7 +49,8 @@ function loadAttended(): Set<string> {
   catch { return new Set(); }
 }
 
-function getUnlockedModules(joinedDate: string | undefined, isSubscriber: boolean): Set<number> {
+function getUnlockedModules(joinedDate: string | undefined, isSubscriber: boolean, isAdmin?: boolean): Set<number> {
+  if (isAdmin) return new Set([1,2,3,4,5,6,7,8,9,10]);
   if (!isSubscriber) return new Set([1]);
   const start = joinedDate ? new Date(joinedDate) : new Date();
   const now = new Date();
@@ -91,12 +92,13 @@ export default function ClassesPage() {
   const grade = parseInt(profile?.grade || "5");
   const levelInfo = LEVEL_MAP[grade] || LEVEL_MAP[5];
   const isSubscriber = profile?.isSubscriber ?? false;
+  const isAdmin = profile?.isAdmin ?? false;
   const joinedDate = (profile as any)?.joinedDate || (profile as any)?.created_at;
 
   const allSessions = useMemo(() => videoSchedule[grade] || [], [grade]);
   const unlockedModules = useMemo(
-    () => getUnlockedModules(joinedDate, isSubscriber),
-    [joinedDate, isSubscriber]
+    () => getUnlockedModules(joinedDate, isSubscriber, isAdmin),
+    [joinedDate, isSubscriber, isAdmin]
   );
 
   const attendedCount = allSessions.filter(s => attended.has(s.id)).length;
