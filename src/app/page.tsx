@@ -54,6 +54,17 @@ const TRUST_BADGES = [
   { icon: "🏦", label: "NCFE Concepts" },
 ];
 
+const LEVELS = [
+  { level: 1, name: "Explorer",   emoji: "🔭", grade: "Class 5",  age: "Age 10–11", module: "Money Foundations",     color: "#6C63FF" },
+  { level: 2, name: "Saver",      emoji: "🪙", grade: "Class 6",  age: "Age 11–12", module: "Saving & Budgeting",    color: "#F4A535" },
+  { level: 3, name: "Planner",    emoji: "📋", grade: "Class 7",  age: "Age 12–13", module: "Banking Basics",        color: "#00E5A0" },
+  { level: 4, name: "Strategist", emoji: "🎯", grade: "Class 8",  age: "Age 13–14", module: "Income & Careers",      color: "#FF6B6B" },
+  { level: 5, name: "Analyst",    emoji: "📊", grade: "Class 9",  age: "Age 14–15", module: "Smart Spending",        color: "#6C63FF" },
+  { level: 6, name: "Investor",   emoji: "📈", grade: "Class 10", age: "Age 15–16", module: "Stock Markets",         color: "#F4A535" },
+  { level: 7, name: "Architect",  emoji: "🏗️", grade: "Class 11", age: "Age 16–17", module: "Financial Planning",    color: "#00E5A0" },
+  { level: 8, name: "Master",     emoji: "🏆", grade: "Class 12", age: "Age 17–18", module: "Wealth Building",       color: "#FFD700" },
+];
+
 export default function StudentLandingPage() {
   const [hasProfile, setHasProfile] = useState(false);
   const [statsVisible, setStatsVisible] = useState(false);
@@ -137,12 +148,12 @@ export default function StudentLandingPage() {
           <div className="lp-card-lesson">
             <div className="lp-lesson-tag">🔴 LIVE NOW</div>
             <div className="lp-lesson-title">The Magic of Compounding</div>
-            <div className="lp-lesson-sub">Monday Class • Class 8</div>
+            <div className="lp-lesson-sub">Level 4 · Strategist — Module 4</div>
           </div>
           <div className="lp-card-stats">
             <div className="lp-cs"><span className="lp-cs-val" style={{ color: "#F4A535" }}>+250</span><span className="lp-cs-lbl">XP Earned</span></div>
             <div className="lp-cs"><span className="lp-cs-val" style={{ color: "#00E5A0" }}>🔥 12</span><span className="lp-cs-lbl">Day Streak</span></div>
-            <div className="lp-cs"><span className="lp-cs-val">Class 8</span><span className="lp-cs-lbl">Grade</span></div>
+            <div className="lp-cs"><span className="lp-cs-val">🎯 L4</span><span className="lp-cs-lbl">Strategist</span></div>
           </div>
           <div className="lp-card-bar-wrap">
             <span className="lp-card-bar-lbl">Semester Progress</span>
@@ -172,8 +183,36 @@ export default function StudentLandingPage() {
         </div>
         <div className="lp-stat-divider" />
         <div className="lp-stat-item">
-          <span className="lp-stat-val">Class 5–12</span>
-          <span className="lp-stat-lbl">Tailored Curriculum</span>
+          <span className="lp-stat-val">8 Levels</span>
+          <span className="lp-stat-lbl">Explorer → Master</span>
+        </div>
+      </section>
+
+      {/* ══ JOURNEY PATH ══ */}
+      <section className="lp-section lp-journey-section">
+        <div className="lp-section-inner">
+          <div className="lp-section-tag">✦ The Learning Path</div>
+          <h2 className="lp-section-h2">From Explorer to Master —<br />your 8-level financial journey</h2>
+          <p className="lp-section-sub">Everyone starts at Level 1. One new module unlocks each month. By Level 8 you&apos;re building real wealth plans.</p>
+
+          <div className="lp-journey-wrap">
+            <div className="lp-journey-line" />
+            {LEVELS.map((lv, i) => (
+              <div key={lv.level} className={`lp-jstop ${i % 2 === 0 ? "lp-jl" : "lp-jr"}`}>
+                <div className="lp-jdot" style={{ background: lv.color, boxShadow: `0 0 0 4px ${lv.color}22` }} />
+                <div className="lp-jcard" style={{ "--jc": lv.color } as any}>
+                  <div className="lp-jlvl" style={{ color: lv.color }}>Level {lv.level}</div>
+                  <div className="lp-jemoji">{lv.emoji}</div>
+                  <div className="lp-jname">{lv.name}</div>
+                  <div className="lp-jmod">{lv.module}</div>
+                  <div className="lp-jgrade">{lv.grade} · {lv.age}</div>
+                  {lv.level === 1 && <div className="lp-jstart-badge">Start Here →</div>}
+                  {lv.level === 8 && <div className="lp-jend-badge">🏆 Graduate</div>}
+                </div>
+                <div className={`lp-jhline ${i % 2 === 0 ? "lp-jhl-left" : "lp-jhl-right"}`} style={{ background: lv.color }} />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -226,7 +265,7 @@ export default function StudentLandingPage() {
           <div className="lp-steps">
             {[
               { n: "01", title: "Sign in with Google", desc: "No forms, no passwords. One tap and your child is in." },
-              { n: "02", title: "Choose Your Grade", desc: "Pick Class 5–12. The curriculum adapts to your level automatically." },
+              { n: "02", title: "Choose Your Level", desc: "Pick Explorer through Master. The curriculum builds progressively with every level." },
               { n: "03", title: "Start Learning & Earning", desc: "Attend live classes, complete activities, earn WealthPoints." },
             ].map(s => (
               <div key={s.n} className="lp-step">
@@ -327,6 +366,36 @@ export default function StudentLandingPage() {
         .lp-section-tag { font-size: 0.78rem; font-weight: 900; color: var(--primary); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 1rem; }
         .lp-section-h2 { font-size: clamp(1.8rem, 3.5vw, 2.6rem); font-weight: 900; color: var(--lp-navy); margin-bottom: 1rem; letter-spacing: -0.02em; }
         .lp-section-sub { color: var(--lp-muted); font-size: 1rem; font-weight: 500; max-width: 560px; line-height: 1.7; margin-bottom: 3rem; }
+
+        /* JOURNEY PATH */
+        .lp-journey-section { background: white; }
+        .lp-journey-wrap { position: relative; max-width: 820px; margin: 0 auto; padding: 1rem 0 2rem; }
+        .lp-journey-line { position: absolute; left: 50%; top: 0; bottom: 0; width: 3px; background: linear-gradient(to bottom, #6C63FF, #00E5A0); transform: translateX(-50%); border-radius: 2px; }
+        .lp-jstop { display: flex; align-items: center; position: relative; min-height: 130px; }
+        .lp-jstop.lp-jl { justify-content: flex-start; }
+        .lp-jstop.lp-jr { justify-content: flex-end; }
+        .lp-jdot { position: absolute; left: 50%; transform: translateX(-50%); width: 18px; height: 18px; border-radius: 50%; border: 3px solid white; z-index: 3; flex-shrink: 0; }
+        .lp-jcard { width: 43%; background: white; border: 1.5px solid var(--lp-border); border-radius: 1.25rem; padding: 1.25rem 1.5rem; transition: all 0.3s; cursor: default; position: relative; z-index: 2; }
+        .lp-jl .lp-jcard { transform: perspective(700px) rotateY(4deg); }
+        .lp-jr .lp-jcard { transform: perspective(700px) rotateY(-4deg); }
+        .lp-jcard:hover { border-color: var(--jc, #6C63FF); box-shadow: 0 16px 48px rgba(108,99,255,0.12); transform: perspective(700px) rotateY(0deg) translateY(-5px) !important; }
+        .lp-jhline { position: absolute; top: 50%; height: 2px; width: 7%; opacity: 0.35; }
+        .lp-jhl-left { left: 43%; }
+        .lp-jhl-right { right: 43%; }
+        .lp-jlvl { font-size: 0.62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.35rem; }
+        .lp-jemoji { font-size: 1.8rem; line-height: 1; margin-bottom: 0.35rem; }
+        .lp-jname { font-size: 1.05rem; font-weight: 900; color: var(--lp-navy); margin-bottom: 0.2rem; }
+        .lp-jmod { font-size: 0.8rem; font-weight: 700; color: #6C63FF; margin-bottom: 0.2rem; }
+        .lp-jgrade { font-size: 0.7rem; color: var(--lp-muted); font-weight: 600; }
+        .lp-jstart-badge { margin-top: 0.6rem; display: inline-block; font-size: 0.65rem; font-weight: 900; background: #6C63FF; color: white; padding: 0.2rem 0.6rem; border-radius: 2rem; }
+        .lp-jend-badge { margin-top: 0.6rem; display: inline-block; font-size: 0.65rem; font-weight: 900; background: #FFD700; color: #0B1437; padding: 0.2rem 0.6rem; border-radius: 2rem; }
+        @media(max-width: 768px) {
+          .lp-journey-line { display: none; }
+          .lp-jstop { justify-content: center !important; min-height: auto; margin-bottom: 1rem; }
+          .lp-jdot { display: none; }
+          .lp-jcard { width: 90%; transform: none !important; }
+          .lp-jhline { display: none; }
+        }
 
         /* FEATURES */
         .lp-features-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
