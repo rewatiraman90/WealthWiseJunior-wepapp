@@ -141,8 +141,10 @@ export default function AdminDashboard() {
         body: JSON.stringify({ agent }),
       });
       if (!res.ok) {
-        const err = await res.json();
-        setAgentError(`Agent failed: ${err.error || res.statusText}`);
+        const text = await res.text();
+        let errMsg = res.statusText;
+        try { errMsg = JSON.parse(text).error || errMsg; } catch {}
+        setAgentError(`Agent failed (${res.status}): ${errMsg}`);
       }
       await fetchAgentLogs();
     } catch (e: any) {
