@@ -60,7 +60,7 @@ export default function GatewayPage() {
 
         {/* STUDENT DOOR */}
         <Link
-          href={hasProfile ? "/campus" : "/onboarding"}
+          href="/students"
           className={`gw-door gw-sdoor ${hovered === "student" ? "gw-expand" : hovered === "parent" ? "gw-shrink" : ""}`}
           onMouseEnter={() => setHovered("student")}
           onMouseLeave={() => setHovered(null)}
@@ -92,9 +92,7 @@ export default function GatewayPage() {
                 <div key={i} className="gw-lvl-dot" title={e}>{e}</div>
               ))}
             </div>
-            <div className="gw-door-btn gw-sbtn">
-              {hasProfile ? "Continue Journey" : "Begin Journey"} →
-            </div>
+            <div className="gw-door-btn gw-sbtn">Learn More →</div>
           </div>
 
           {/* edge glow line */}
@@ -140,13 +138,13 @@ export default function GatewayPage() {
 
       </div>
 
+      {/* ── Login to Campus ── */}
+      <Link href="/campus" className="gw-campus-btn">
+        Already learning? Login to Campus →
+      </Link>
+
       {/* ── bottom links ── */}
       <div className="gw-footer">
-        {hasProfile
-          ? <Link href="/campus" className="gw-flink">→ Go to Campus</Link>
-          : <Link href="/onboarding" className="gw-flink">→ Already have an account? Login</Link>
-        }
-        <span className="gw-fdot">·</span>
         <Link href="/apply" className="gw-flink">🎓 Apply for Free Scholarship</Link>
         <span className="gw-fdot">·</span>
         <Link href="/contact" className="gw-flink">Contact</Link>
@@ -494,6 +492,32 @@ export default function GatewayPage() {
           letter-spacing: 0.06em;
           writing-mode: vertical-rl;
           flex-shrink: 0;
+        }
+
+        /* ── CAMPUS LOGIN BUTTON ── */
+        .gw-campus-btn {
+          position: relative;
+          z-index: 10;
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.7rem 1.8rem;
+          border-radius: 2rem;
+          border: 1px solid rgba(255,255,255,0.12);
+          background: rgba(255,255,255,0.04);
+          color: rgba(255,255,255,0.6);
+          font-size: 0.88rem;
+          font-weight: 700;
+          text-decoration: none;
+          font-family: 'Plus Jakarta Sans', sans-serif;
+          transition: all 0.22s;
+          backdrop-filter: blur(8px);
+        }
+        .gw-campus-btn:hover {
+          border-color: rgba(108,99,255,0.45);
+          background: rgba(108,99,255,0.1);
+          color: white;
+          transform: translateY(-2px);
         }
 
         /* ── FOOTER ── */
