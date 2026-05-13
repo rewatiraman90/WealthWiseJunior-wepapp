@@ -258,16 +258,16 @@ export default function StudentLandingPage() {
         .lp-root { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--lp-offwhite); color: var(--lp-text); min-height: 100vh; }
 
         /* NAV */
-        .lp-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.92); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(108,99,255,0.1); }
-        .lp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
-        .lp-logo { font-weight: 900; font-size: 1.4rem; letter-spacing: -0.03em; }
+        .lp-nav { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-bottom: 1px solid rgba(108,99,255,0.08); box-shadow: 0 1px 0 rgba(0,0,0,0.04); }
+        .lp-nav-inner { max-width: 1200px; margin: 0 auto; padding: 0 2rem; height: 68px; display: flex; justify-content: space-between; align-items: center; }
+        .lp-logo { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 1.35rem; letter-spacing: -0.03em; }
         .lp-logo-w { color: var(--lp-navy); }
-        .lp-logo-jr { color: var(--primary); margin-left: 2px; }
-        .lp-nav-links { display: flex; align-items: center; gap: 1.5rem; }
-        .lp-nav-link { color: var(--lp-muted); text-decoration: none; font-weight: 600; font-size: 0.9rem; transition: color 0.2s; }
-        .lp-nav-link:hover { color: var(--lp-text); }
-        .lp-btn-nav { background: var(--lp-navy); color: white; padding: 0.6rem 1.4rem; border-radius: 2rem; font-size: 0.88rem; font-weight: 800; text-decoration: none; transition: all 0.2s; }
-        .lp-btn-nav:hover { background: var(--primary); transform: translateY(-1px); }
+        .lp-logo-jr { color: var(--primary); margin-left: 1px; }
+        .lp-nav-links { display: flex; align-items: center; gap: 0.25rem; }
+        .lp-nav-link { font-family: 'Plus Jakarta Sans', sans-serif; color: var(--lp-muted); text-decoration: none; font-weight: 600; font-size: 0.875rem; letter-spacing: -0.01em; padding: 0.45rem 0.85rem; border-radius: 0.6rem; transition: color 0.18s, background 0.18s; }
+        .lp-nav-link:hover { color: var(--lp-text); background: rgba(108,99,255,0.07); }
+        .lp-btn-nav { font-family: 'Plus Jakarta Sans', sans-serif; background: linear-gradient(135deg, var(--lp-navy) 0%, #1a2b6e 100%); color: white; padding: 0.58rem 1.35rem; border-radius: 2rem; font-size: 0.875rem; font-weight: 800; letter-spacing: -0.01em; line-height: 1; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 10px rgba(11,20,55,0.22); margin-left: 0.75rem; white-space: nowrap; }
+        .lp-btn-nav:hover { background: linear-gradient(135deg, var(--primary) 0%, #8b5cf6 100%); transform: translateY(-1px); box-shadow: 0 4px 18px rgba(108,99,255,0.38); }
 
         /* HERO */
         .lp-hero { position: relative; min-height: 90vh; background: var(--lp-navy); overflow: hidden; display: flex; align-items: center; padding: 6rem 2rem 4rem; gap: 4rem; justify-content: center; flex-wrap: wrap; }
