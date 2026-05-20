@@ -76,7 +76,7 @@ function OnboardingContent() {
       if (profile && !isUpgrade) {
         // Logged in and profile exists. Save to local storage for instant UI sync and redirect.
         localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number, avatar: profile.avatar_url }));
-        router.push('/campus');
+        window.location.href = 'https://wwjcampus.in.net/campus';
       } else if (profile && isUpgrade) {
         localStorage.setItem('wwj_profile', JSON.stringify({ ...profile, rollNumber: profile.roll_number, avatar: profile.avatar_url }));
         setFormData({
@@ -102,7 +102,7 @@ function OnboardingContent() {
           };
           await supabase.from('profiles').upsert([profileInfo]);
           localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber: profileInfo.roll_number }));
-          window.location.href = '/campus';
+          window.location.href = 'https://wwjcampus.in.net/campus';
           return;
         }
 
@@ -131,7 +131,9 @@ function OnboardingContent() {
     await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin + '/onboarding'
+        // Always complete OAuth at the campus domain so the session
+        // is stored there — prevents cross-domain localStorage mismatch
+        redirectTo: 'https://wwjcampus.in.net/onboarding'
       }
     });
   };
@@ -279,7 +281,7 @@ function OnboardingContent() {
         localStorage.setItem('wwj_profile', JSON.stringify({ ...profileInfo, rollNumber }));
         
         // Use window.location instead of router push to ensure state fully refreshes down the line
-        window.location.href = '/campus';
+        window.location.href = 'https://wwjcampus.in.net/campus';
       }
 
     } catch (err: any) {
@@ -502,7 +504,7 @@ function OnboardingContent() {
             {sessionUid && sessionUid === 'rayraman90@gmail.com' || localStorage.getItem('wwj_profile')?.includes('ADMIN-001') ? (
               <button 
                 className="ob-btn-primary pulse" 
-                onClick={() => window.location.href = '/campus'}
+                onClick={() => window.location.href = 'https://wwjcampus.in.net/campus'}
               >
                  Admin Access: Go to Campus →
               </button>
