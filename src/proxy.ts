@@ -8,7 +8,7 @@ export function proxy(request: NextRequest) {
     hostname === "www.wealthwisejunior.in.net";
 
   if (isMarketingSite && request.nextUrl.pathname === "/campus") {
-    return NextResponse.redirect("https://wwjcampus.in.net", { status: 302 });
+    return NextResponse.redirect("https://wwjcampus.in.net/campus", { status: 302 });
   }
 
   return NextResponse.next();
