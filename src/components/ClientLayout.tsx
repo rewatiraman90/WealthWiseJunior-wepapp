@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { supabase } from "@/lib/supabaseClient";
+import { useProfile } from "@/hooks/useProfile";
 
 const navLinks = [
   { href: "/", icon: "🏠", label: "Home" },
@@ -16,56 +17,38 @@ const navLinks = [
   { href: "/parent/dashboard", icon: "👪", label: "Parent Dashboard" },
 ];
 
+const publicRoutes = ["/", "/parent", "/students", "/apply", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
+
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname();
   const router = useRouter();
+  const { profile, isLoading } = useProfile();
 
-  // Define public routes that don't need authentication
-  const publicRoutes = ["/", "/parent", "/students", "/apply", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
   const isPublicRoute = publicRoutes.includes(path);
-  const isLandingPage = path === "/parent" || path === "/" || path === "/students" || path === "/onboarding";
-
-  // Read student profile from localStorage
-  const [profile, setProfile] = useState<{
-    name: string; grade: string; city: string;
-    rollNumber: string; isSubscriber: boolean; avatar?: string;
-  } | null>(null);
-  const [isLooingForAuth, setIsLookingForAuth] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const isLandingPage = path === "/" || path === "/students" || path === "/parent" || path === "/onboarding";
+  const isAdmin = profile?.isAdmin ?? false;
 
   useEffect(() => {
-    let storedProfile = null;
-    try {
-      const raw = localStorage.getItem('wwj_profile');
-      if (raw) storedProfile = JSON.parse(raw);
-    } catch {}
-
-    setProfile(storedProfile);
-    setIsLookingForAuth(false);
-
-    // Check if admin
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user?.email === 'rayraman90@gmail.com') setIsAdmin(true);
-    });
-
-    // If on a private route and no profile, redirect to home
-    if (!storedProfile && !publicRoutes.includes(window.location.pathname)) {
+    if (!isLoading && !profile && !isPublicRoute) {
       router.push("/");
     }
-  }, [path, router]);
+  }, [isLoading, profile, isPublicRoute, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem("wwj_profile");
-    setProfile(null);
     router.push("/");
   };
 
   const firstName = profile?.name?.split(' ')[0] || 'Student';
   const avatarImage = profile?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(profile?.name || firstName)}`;
 
-  // Prevent flash of private content during auth check
-  if (isLooingForAuth && !isPublicRoute) {
+  const xp = profile?.xp_total ?? 0;
+  const xpMax = 3000;
+  const xpPct = Math.min(100, Math.round((xp / xpMax) * 100));
+  const streak = profile?.current_streak ?? 0;
+
+  if (isLoading && !isPublicRoute) {
     return <div className="loading-screen">Loading...</div>;
   }
 
@@ -116,10 +99,13 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               </div>
             )}
             <div className="xp-bar">
-              <div className="xp-label"><span>XP</span><span className="xp-val">2,450 / 3,000</span></div>
-              <div className="xp-track"><div className="xp-fill" style={{ width: "82%" }} /></div>
+              <div className="xp-label">
+                <span>XP</span>
+                <span className="xp-val">{xp.toLocaleString('en-IN')} / {xpMax.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="xp-track"><div className="xp-fill" style={{ width: `${xpPct}%` }} /></div>
             </div>
-            <div className="streak-badge" style={{ marginBottom: "0.5rem" }}>🔥 21 Day Streak</div>
+            <div className="streak-badge" style={{ marginBottom: "0.5rem" }}>🔥 {streak} Day Streak</div>
             <button className="btn-logout" onClick={handleLogout}>
               <span className="nav-icon">🚪</span> Logout
             </button>
@@ -145,9 +131,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
               )}
               <div className="points-badge">
                 <span className="points-icon">💎</span>
-                <span className="points-val">12,450 WP</span>
+                <span className="points-val">{xp.toLocaleString('en-IN')} WP</span>
               </div>
-              <div className="rank-badge">🥇 Rank #4</div>
+              <Link href="/leaderboard" className="rank-badge">🏆 Leaderboard</Link>
               <Link href="/profile" className="avatar-wrap">
                 <img src={avatarImage} alt="avatar" />
                 <div className="avatar-glow" />
