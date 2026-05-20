@@ -1,11 +1,4 @@
 {
-  "redirects": [
-    {
-      "source": "/campus",
-      "destination": "https://wwjcampus.in.net",
-      "permanent": false
-    }
-  ],
   "crons": [
     {
       "path": "/api/cron/agents?agent=engineer",
