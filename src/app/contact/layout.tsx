@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact WealthWise Junior",
     description: "Have a question? We're here to help. Reach out to the WealthWise Junior team.",
-    url: "https://wealthwisejunior.in.net/contact",
+    url: "https://www.wwjcampus.in.net/contact",
   },
 };
 

@@ -24,11 +24,11 @@ export async function sendWelcomeEmail(to: string, name: string, rollNumber: str
           2. Ask <strong style="color: #fff;">Sir</strong> (AI Teacher) your first money question<br/>
           3. Complete your <strong style="color: #fff;">3-Jar activity</strong> in the Lab
         </p>
-        <a href="https://wealthwisejunior.in.net/campus" style="display: inline-block; background: #6C63FF; color: white; padding: 14px 28px; border-radius: 50px; font-weight: 700; text-decoration: none; margin-top: 16px;">
+        <a href="https://www.wwjcampus.in.net/campus" style="display: inline-block; background: #6C63FF; color: white; padding: 14px 28px; border-radius: 50px; font-weight: 700; text-decoration: none; margin-top: 16px;">
           Go to Campus →
         </a>
         <p style="color: #4a5568; font-size: 13px; margin-top: 32px;">
-          Questions? Reply to this email or visit <a href="https://wealthwisejunior.in.net/contact" style="color: #6C63FF;">wealthwisejunior.in.net/contact</a>
+          Questions? Reply to this email or visit <a href="https://www.wwjcampus.in.net/contact" style="color: #6C63FF;">wwjcampus.in.net/contact</a>
         </p>
       </div>
     `,
@@ -98,11 +98,11 @@ export async function sendSubscriptionConfirmEmail(
           </table>
         </div>
         <p style="color: #a0aec0; font-size: 15px;">You now have full access to all video classes, the AI Teacher, and the Parent Dashboard.</p>
-        <a href="https://wealthwisejunior.in.net/campus" style="display: inline-block; background: #6C63FF; color: white; padding: 14px 28px; border-radius: 50px; font-weight: 700; text-decoration: none; margin-top: 8px;">
+        <a href="https://www.wwjcampus.in.net/campus" style="display: inline-block; background: #6C63FF; color: white; padding: 14px 28px; border-radius: 50px; font-weight: 700; text-decoration: none; margin-top: 8px;">
           Start Learning →
         </a>
         <p style="color: #4a5568; font-size: 13px; margin-top: 32px;">
-          Need help? <a href="https://wealthwisejunior.in.net/contact" style="color: #6C63FF;">Contact support</a>
+          Need help? <a href="https://www.wwjcampus.in.net/contact" style="color: #6C63FF;">Contact support</a>
         </p>
       </div>
     `,

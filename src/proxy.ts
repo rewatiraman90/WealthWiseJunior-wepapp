@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function proxy(request: NextRequest) {
-  const hostname = request.headers.get("host") ?? "";
-  const isMarketingSite =
-    hostname === "wealthwisejunior.in.net" ||
-    hostname === "www.wealthwisejunior.in.net";
-
-  if (isMarketingSite && request.nextUrl.pathname === "/campus") {
-    return NextResponse.redirect("https://wwjcampus.in.net/campus", { status: 302 });
-  }
-
+// No active redirects needed — wealthwisejunior.in.net is served by
+// GitHub Pages directly and no longer routes through this app.
+export function proxy(_request: NextRequest) {
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ["/campus"],
+  matcher: [],
 };

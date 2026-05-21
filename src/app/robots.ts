@@ -5,10 +5,10 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: ["/", "/parent", "/contact", "/terms", "/privacy", "/refund"],
+        allow: ["/", "/onboarding", "/apply", "/contact", "/terms", "/privacy", "/refund"],
         disallow: ["/campus", "/classes", "/ai-teacher", "/lab", "/gps", "/profile", "/admin", "/api/"],
       },
     ],
-    sitemap: "https://wealthwisejunior.in.net/sitemap.xml",
+    sitemap: "https://www.wwjcampus.in.net/sitemap.xml",
   };
 }

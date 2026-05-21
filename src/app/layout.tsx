@@ -20,11 +20,11 @@ export const metadata: Metadata = {
     "kids finance app India",
   ],
   authors: [{ name: "WealthWise Junior" }],
-  metadataBase: new URL("https://wealthwisejunior.in.net"),
+  metadataBase: new URL("https://www.wwjcampus.in.net"),
   openGraph: {
     type: "website",
     locale: "en_IN",
-    url: "https://wealthwisejunior.in.net",
+    url: "https://www.wwjcampus.in.net",
     siteName: "WealthWise Junior",
     title: "WealthWise Junior — Financial Literacy for Indian Students",
     description:
