@@ -6,7 +6,6 @@ import { supabase } from "@/lib/supabaseClient";
 import { useProfile } from "@/hooks/useProfile";
 
 const navLinks = [
-  { href: "/", icon: "🏠", label: "Home" },
   { href: "/campus", icon: "🏛️", label: "Campus" },
   { href: "/ai-teacher", icon: "🎓", label: "Sir (AI Teacher)" },
   { href: "/classes", icon: "📅", label: "Classes" },
@@ -17,7 +16,7 @@ const navLinks = [
   { href: "/parent/dashboard", icon: "👪", label: "Parent Dashboard" },
 ];
 
-const publicRoutes = ["/", "/parent", "/students", "/apply", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
+const publicRoutes = ["/", "/apply", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const path = usePathname();
@@ -25,19 +24,19 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
   const { profile, isLoading } = useProfile();
 
   const isPublicRoute = publicRoutes.includes(path);
-  const isLandingPage = path === "/" || path === "/students" || path === "/parent" || path === "/onboarding";
+  const isLandingPage = path === "/" || path === "/onboarding";
   const isAdmin = profile?.isAdmin ?? false;
 
   useEffect(() => {
     if (!isLoading && !profile && !isPublicRoute) {
-      router.push("/");
+      router.push("/onboarding");
     }
   }, [isLoading, profile, isPublicRoute, router]);
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
     localStorage.removeItem("wwj_profile");
-    router.push("/");
+    router.push("/onboarding");
   };
 
   const firstName = profile?.name?.split(' ')[0] || 'Student';
