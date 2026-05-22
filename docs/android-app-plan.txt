@@ -1,0 +1,136 @@
+================================================================================
+IDEA: WealthWise Jr. Android App
+Status: NOT IMPLEMENTED — Recorded for future development
+Date recorded: May 2026
+Requested by: Rewati Raman (rewatiraman90@gmail.com)
+================================================================================
+
+OVERVIEW
+--------
+Build a native Android (and optionally iOS) mobile app for WealthWise Jr.
+The existing Supabase backend, all API routes, and business logic can be
+reused as-is. The app is purely a new UI layer on top of the current web
+infrastructure.
+
+RECOMMENDED APPROACH: FLUTTER
+------------------------------
+Flutter gives a single codebase that compiles to both Android and iOS.
+Strong developer community in India, good Supabase + Razorpay/PayU support,
+and works seamlessly with the existing backend APIs.
+
+Alternatives considered:
+  - React Native  : JS-based, easier to hire for, but slower performance
+  - Native Kotlin : Best performance, Android only, higher cost
+  - PWA           : Fastest to ship, no Play Store listing, limited features
+
+ACCOUNTS AND LICENSES NEEDED
+------------------------------
+  Google Play Developer Account  : $25 one-time (~₹2,100)
+  Apple Developer Account (iOS)  : $99/year (~₹8,300) — optional
+  Firebase (Google)              : Free tier — for push notifications
+  Supabase                       : Already active — reuse as-is
+  Razorpay / PayU                : Both have Flutter SDKs — reuse existing keys
+
+DEVELOPMENT TOOLS (ALL FREE)
+------------------------------
+  Android Studio     : Primary IDE for Flutter/Android development
+  Flutter SDK        : https://flutter.dev — the framework
+  VS Code            : Lighter IDE alternative
+  Android Emulator   : Bundled with Android Studio
+  Physical Android device : Required for real-device testing
+
+WHAT CAN BE REUSED FROM THE WEB APP
+-------------------------------------
+  Supabase backend       : Same database, same auth, same RLS policies
+  All API routes         : /api/attendance, /api/ai-teacher, /api/assessment-scores, etc.
+  Payment integration    : Razorpay and PayU both have Flutter SDKs
+  Business logic         : XP system, streaks, curriculum unlocking, subscriptions
+  Brand assets           : Logo, color palette, fonts
+  Supabase auth          : supabase_flutter package handles auth natively
+
+WHAT NEEDS TO BE BUILT FROM SCRATCH
+-------------------------------------
+  All UI screens         : Mirror the web design adapted for mobile
+  Navigation             : Bottom tab bar instead of sidebar
+  Video player           : youtube_player_flutter package
+  Push notifications     : Firebase Cloud Messaging (FCM) — free
+  Offline mode           : Optional but valuable for students with weak internet
+  Deep linking           : For payment callbacks and email verification
+
+KEY FLUTTER PACKAGES
+---------------------
+  supabase_flutter        : Auth + DB queries
+  youtube_player_flutter  : Embedded YouTube video player
+  firebase_messaging      : Push notifications
+  razorpay_flutter        : Payment integration
+  flutter_secure_storage  : Store auth tokens securely
+  go_router               : Navigation/routing
+  provider / riverpod     : State management
+  cached_network_image    : Avatar and image caching
+  flutter_local_notifications : Local reminder notifications
+
+SCREEN LIST (V1)
+-----------------
+  1. Splash / Onboarding
+  2. Sign In / Sign Up (Supabase Auth)
+  3. Campus Home (dashboard with wings)
+  4. Curriculum Explorer (all 8 levels)
+  5. Classes (video player + quiz)
+  6. AI Teacher (chat interface)
+  7. Leaderboard
+  8. My Profile (XP, streak, roll number)
+  9. Parent Dashboard
+  10. Subscription / Payment screen
+
+DEVELOPMENT TIMELINE
+---------------------
+  Month 1 : Auth, Profile, Campus home screen, navigation shell
+  Month 2 : Curriculum page, Classes page, YouTube video playback
+  Month 3 : AI Teacher chat, Leaderboard, Payment integration
+  Month 4 : Testing, performance, Play Store submission, bug fixes
+
+  Total: ~4 months with 1 experienced Flutter developer
+
+TEAM NEEDED
+------------
+  1 Flutter developer (minimum 6 months Flutter experience)
+    India freelance rate: ₹20,000 – ₹60,000 per month
+    Hire via: LinkedIn, Toptal, Upwork, Naukri
+  1 UI/UX designer (optional — can adapt existing web designs)
+
+COST ESTIMATE (INDIA)
+----------------------
+  Flutter developer (4 months)   : ₹80,000 – ₹2,40,000
+  Google Play account            : ₹2,100 (one-time)
+  Firebase                       : Free
+  Apple Developer (optional iOS) : ₹8,300/year
+  -----------------------------------------------
+  Total minimum (Android only)   : ~₹85,000
+
+INTEGRATION NOTE
+-----------------
+The Flutter app should call existing Next.js API routes directly:
+  https://wwjcampus.in.net/api/attendance
+  https://wwjcampus.in.net/api/ai-teacher
+  https://wwjcampus.in.net/api/assessment-scores
+  etc.
+
+This means zero backend work is required. The developer only builds
+the mobile UI — all data, auth, payments, and logic already exist.
+
+WHY ANDROID FIRST
+------------------
+Android covers ~95% of Indian school students' devices.
+iOS can be added later from the same Flutter codebase with minimal
+extra effort once there is sufficient subscriber demand.
+
+RECOMMENDED LAUNCH SEQUENCE
+-----------------------------
+  Step 1 : Grow web app to 100+ paying subscribers
+  Step 2 : Build Android app (Flutter)
+  Step 3 : Submit to Google Play Store
+  Step 4 : Add iOS support if demand justifies Apple Developer cost
+
+================================================================================
+END OF DOCUMENT
+================================================================================
