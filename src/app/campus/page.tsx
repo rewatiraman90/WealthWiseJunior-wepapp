@@ -7,6 +7,19 @@ import { useSearchParams } from "next/navigation";
 
 const wings = [
   {
+    id: "curriculum",
+    icon: "📚",
+    title: "Curriculum",
+    desc: "See your full learning path — every module and lesson laid out ahead of you.",
+    badge: "Level 1 Explorer · 9 Modules",
+    badgeType: "",
+    href: "/curriculum",
+    btnLabel: "View Path →",
+    glow: "rgba(255,209,102,0.2)",
+    borderCol: "rgba(255,209,102,0.35)",
+    gradient: "linear-gradient(135deg,rgba(255,209,102,0.12),rgba(255,209,102,0.02))"
+  },
+  {
     id: "theory",
     icon: "📹",
     title: "Video Classes",

@@ -8,6 +8,7 @@ import { useProfile } from "@/hooks/useProfile";
 const navLinks = [
   { href: "/campus", icon: "🏛️", label: "Campus" },
   { href: "/ai-teacher", icon: "🎓", label: "Sir (AI Teacher)" },
+  { href: "/curriculum", icon: "📚", label: "Curriculum" },
   { href: "/classes", icon: "📅", label: "Classes" },
   { href: "/lab", icon: "🧪", label: "Activity Lab" },
   { href: "/gps", icon: "🧭", label: "Freedom GPS" },
