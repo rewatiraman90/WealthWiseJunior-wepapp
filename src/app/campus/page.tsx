@@ -167,7 +167,7 @@ export default function CampusDashboard() {
   // For Free Explorers, force-lock the premium wings
   const dashboardWings = wings.map(w => {
     // Only For Parents and Leaderboard are always unlocked
-    if (!isSubscriber && w.id !== 'parent' && w.id !== 'leaderboard') {
+    if (!isSubscriber && w.id !== 'parent' && w.id !== 'leaderboard' && w.id !== 'curriculum') {
       return { 
         ...w, 
         locked: true, 

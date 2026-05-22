@@ -131,7 +131,11 @@ export default function CurriculumPage() {
               {/* Lesson list — visible when open */}
               {isOpen && (
                 <div className="cur-lessons">
-                  {modClasses.map((cls, lessonIdx) => {
+                  {modClasses.length === 0 ? (
+                    <div className="cur-coming-soon">
+                      🎬 Video lessons for this module are being added — check back soon!
+                    </div>
+                  ) : modClasses.map((cls, lessonIdx) => {
                     const canOpen = isUnlocked && (isSubscriber || isAdmin || modNum === 1);
 
                     return (
@@ -209,6 +213,7 @@ export default function CurriculumPage() {
         .cur-lesson-meta { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
         .cur-lesson-btn { padding: 0.35rem 0.9rem; background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; border-radius: 2rem; font-size: 0.75rem; font-weight: 800; text-decoration: none; white-space: nowrap; flex-shrink: 0; }
         .cur-lesson-lock { font-size: 0.72rem; font-weight: 700; color: var(--muted); white-space: nowrap; flex-shrink: 0; padding: 0.35rem 0.75rem; border-radius: 2rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
+        .cur-coming-soon { padding: 1.5rem; text-align: center; font-size: 0.85rem; color: var(--muted); font-weight: 600; font-style: italic; }
       `}</style>
     </div>
   );
