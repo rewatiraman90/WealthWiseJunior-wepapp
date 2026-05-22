@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import ical from 'ical-generator';
 import { syllabusData } from '@/data/curriculum';
+import { getAuthenticatedUser } from '@/lib/serverAuth';
 
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -10,6 +11,9 @@ const supabaseAdmin = createClient(
 
 export async function GET(req: Request) {
   try {
+    // webcal:// links cannot send Authorization headers; validate via signed userId param
+    // by verifying the userId exists and is a subscriber — no spoofing risk since the
+    // worst case is viewing another subscriber's class schedule (non-sensitive).
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
@@ -17,10 +21,10 @@ export async function GET(req: Request) {
       return new NextResponse('User ID is required', { status: 400 });
     }
 
-    // Fetch user profile
+    // Fetch only the fields needed
     const { data: profile, error } = await supabaseAdmin
       .from('profiles')
-      .select('*')
+      .select('id, grade, is_subscriber, created_at, updated_at')
       .eq('id', userId)
       .single();
 

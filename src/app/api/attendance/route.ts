@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getAuthenticatedUser } from "@/lib/serverAuth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -11,12 +12,17 @@ const XP_MODULE_BONUS = 100;
 const SESSIONS_PER_MODULE = 12; // 3 days × 4 weeks
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { userId, classId, grade, module, week, day } = body;
+  const user = await getAuthenticatedUser(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!userId || !classId) {
+  const body = await req.json();
+  const { classId, grade, module, week, day } = body;
+
+  if (!classId) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
+
+  const userId = user.id;
 
   // Idempotent — skip if already recorded
   const { data: existing } = await supabase
@@ -53,9 +59,8 @@ export async function POST(req: NextRequest) {
     const last = new Date(profile.last_attended_date);
     const now = new Date(today);
     const diffDays = Math.floor((now.getTime() - last.getTime()) / 86400000);
-    if (diffDays === 0) newStreak = profile.current_streak || 1;       // same day
-    else if (diffDays === 1) newStreak = (profile.current_streak || 0) + 1; // consecutive
-    // else streak resets to 1
+    if (diffDays === 0) newStreak = profile.current_streak || 1;
+    else if (diffDays === 1) newStreak = (profile.current_streak || 0) + 1;
   }
 
   const newLongest = Math.max(newStreak, profile?.longest_streak || 0);
@@ -95,13 +100,13 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId");
-  if (!userId) return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  const user = await getAuthenticatedUser(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
   const { data } = await supabase
     .from("class_attendance")
     .select("class_id")
-    .eq("user_id", userId);
+    .eq("user_id", user.id);
 
   return NextResponse.json({ attended: data?.map((r) => r.class_id) ?? [] });
 }

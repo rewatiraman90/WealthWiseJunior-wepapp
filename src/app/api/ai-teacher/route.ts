@@ -5,12 +5,33 @@ import { getAuthenticatedUser } from '@/lib/serverAuth';
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
+// Rate limiter: 30 messages per hour per user
+const RATE_LIMIT = 30;
+const WINDOW_MS = 60 * 60 * 1000;
+const userTimestamps = new Map<string, number[]>();
+
+function isRateLimited(userId: string): boolean {
+  const now = Date.now();
+  const timestamps = (userTimestamps.get(userId) || []).filter(t => now - t < WINDOW_MS);
+  if (timestamps.length >= RATE_LIMIT) return true;
+  timestamps.push(now);
+  userTimestamps.set(userId, timestamps);
+  return false;
+}
+
 export async function POST(req: NextRequest) {
   try {
     // Auth guard — reject unauthenticated requests
     const authenticatedUser = await getAuthenticatedUser(req);
     if (!authenticatedUser) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (isRateLimited(authenticatedUser.id)) {
+      return NextResponse.json(
+        { error: 'Rate limit reached. You can send 30 messages per hour.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
     }
 
     // Admin Bypass or Subscriber Check

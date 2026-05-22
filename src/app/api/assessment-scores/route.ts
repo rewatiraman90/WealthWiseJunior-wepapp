@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { getAuthenticatedUser } from "@/lib/serverAuth";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -7,15 +8,22 @@ const supabase = createClient(
 );
 
 export async function POST(req: NextRequest) {
-  const body = await req.json();
-  const { userId, classId, grade, module, score, passed, answersSubmitted } = body;
+  const user = await getAuthenticatedUser(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!userId || !classId || score === undefined || passed === undefined) {
+  const body = await req.json();
+  const { classId, grade, module, score, passed, answersSubmitted } = body;
+
+  if (!classId || score === undefined || passed === undefined) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
+  if (typeof score !== "number" || score < 0 || score > 10) {
+    return NextResponse.json({ error: "Invalid score" }, { status: 400 });
+  }
+
   const { error } = await supabase.from("assessment_scores").insert({
-    user_id: userId,
+    user_id: user.id,
     class_id: classId,
     grade,
     module,
@@ -33,15 +41,15 @@ export async function POST(req: NextRequest) {
 }
 
 export async function GET(req: NextRequest) {
-  const userId = req.nextUrl.searchParams.get("userId");
-  const classId = req.nextUrl.searchParams.get("classId");
+  const user = await getAuthenticatedUser(req);
+  if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  if (!userId) return NextResponse.json({ error: "Missing userId" }, { status: 400 });
+  const classId = req.nextUrl.searchParams.get("classId");
 
   let query = supabase
     .from("assessment_scores")
     .select("class_id, score, passed, answers_submitted, created_at")
-    .eq("user_id", userId)
+    .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
   if (classId) query = query.eq("class_id", classId);

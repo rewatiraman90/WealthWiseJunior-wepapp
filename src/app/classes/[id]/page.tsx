@@ -42,6 +42,7 @@ export default function VideoClassPage() {
     const [moduleBonus, setModuleBonus] = useState(false);
     const [newStreak, setNewStreak] = useState(0);
     const [userId, setUserId] = useState<string | null>(null);
+    const [authToken, setAuthToken] = useState<string | null>(null);
     const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => {
@@ -54,6 +55,7 @@ export default function VideoClassPage() {
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUserId(session?.user?.id ?? null);
+            setAuthToken(session?.access_token ?? null);
         });
     }, []);
 
@@ -92,13 +94,12 @@ export default function VideoClassPage() {
         setSubmitted(true);
         setPassed(pass);
 
-        if (userId) {
+        if (authToken) {
           // Always persist the score (pass or fail) for progress tracking
           fetch("/api/assessment-scores", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
             body: JSON.stringify({
-              userId,
               classId: safeCls.id,
               grade: safeCls.grade,
               module: safeCls.month,
@@ -115,13 +116,12 @@ export default function VideoClassPage() {
           window.dispatchEvent(new Event("storage"));
 
           // Sync to Supabase + award XP
-          if (userId) {
+          if (authToken) {
             try {
               const res = await fetch("/api/attendance", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", Authorization: `Bearer ${authToken}` },
                 body: JSON.stringify({
-                  userId,
                   classId: safeCls.id,
                   grade: safeCls.grade,
                   module: safeCls.month,

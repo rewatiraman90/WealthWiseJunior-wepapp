@@ -2,7 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { getAuthenticatedUser } from '@/lib/serverAuth';
 
-// Initialize inside the handler to prevent build errors when env vars are missing
+// Rate limiter: 50 TTS requests per hour per user
+const RATE_LIMIT = 50;
+const WINDOW_MS = 60 * 60 * 1000;
+const userTimestamps = new Map<string, number[]>();
+
+function isRateLimited(userId: string): boolean {
+  const now = Date.now();
+  const timestamps = (userTimestamps.get(userId) || []).filter(t => now - t < WINDOW_MS);
+  if (timestamps.length >= RATE_LIMIT) return true;
+  timestamps.push(now);
+  userTimestamps.set(userId, timestamps);
+  return false;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,6 +22,13 @@ export async function POST(req: NextRequest) {
     const user = await getAuthenticatedUser(req);
     if (!user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    if (isRateLimited(user.id)) {
+      return NextResponse.json(
+        { error: 'Rate limit reached. Maximum 50 voice responses per hour.' },
+        { status: 429, headers: { 'Retry-After': '3600' } }
+      );
     }
 
     const { text } = await req.json();

@@ -36,7 +36,8 @@ export async function POST(req: Request) {
     const generatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
 
     if (generatedHash !== hash) {
-      console.warn('PayU hash mismatch — txnid:', txnid);
+      console.error('PayU hash mismatch — possible tampered callback. txnid:', txnid);
+      return NextResponse.redirect(`${SITE_URL}/onboarding?payment=failed`, { status: 303 });
     }
 
     // Log transaction regardless of status for audit trail
