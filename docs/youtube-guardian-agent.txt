@@ -1,0 +1,180 @@
+================================================================================
+IDEA: YouTube Guardian Agent — Auto-Replace Private/Deleted Videos
+Status: NOT IMPLEMENTED — Recorded for future development
+Date recorded: May 2026
+Requested by: Rewati Raman (rewatiraman90@gmail.com)
+================================================================================
+
+PROBLEM
+-------
+WealthWise Jr. uses embedded YouTube videos for class content. The course runs
+7+ years (Class 5 to Class 12). During this time, third-party educational
+videos on YouTube can:
+  - Be set to private by the uploader
+  - Be deleted entirely
+  - Get region-locked (India)
+  - Have their channel removed
+
+Students hitting a dead/private video mid-course is a bad experience and breaks
+learning continuity.
+
+IDEA
+----
+Build an AI agent that:
+  1. Monitors all YouTube video IDs in the platform daily
+  2. Detects when a video becomes unavailable (private, deleted, region-locked)
+  3. Automatically searches YouTube for a replacement video on the same topic
+  4. Uses AI (Claude) to score and select the best semantic match
+  5. Notifies admin with a side-by-side preview for approval
+  6. On approval, updates the database — live instantly, no code deploy needed
+
+LEGAL NOTE
+----------
+This approach is fully legal because:
+  - We ONLY use YouTube's official embed player (iframe), never download videos
+  - YouTube's ToS explicitly allows embedding via their player
+  - We're just swapping one YouTube embed ID for another
+  - No content is stored on our servers
+
+ARCHITECTURE
+------------
+
+  Daily Cron Job (Vercel Cron, free tier)
+       |
+       v
+  YouTube Data API v3 — check video status for each stored ID
+  (Cost: 1 unit per video, free quota = 10,000 units/day)
+       |
+       v
+  Video OK? → do nothing
+  Video private/deleted/404? → trigger AI agent
+       |
+       v
+  YouTube Search API — search by topic keywords
+  (e.g. "compound interest explained students India")
+  (Cost: 100 units per search, still within free tier)
+       |
+       v
+  Claude API — rank top 5 results by topic relevance
+  (Compare title + description against original topic from DB)
+  (Cost: ~$0.001 per decision, effectively free)
+       |
+       v
+  Admin notification (email or in-app alert)
+  → Shows: original topic, old video (broken), suggested replacement preview
+  → One-click Approve or Reject
+       |
+       v
+  On approval: UPDATE video_classes SET youtube_id = 'new_id' WHERE id = '...'
+  → Change is live immediately across the entire platform
+
+COST ESTIMATE
+-------------
+  YouTube Data API     : Free (well within 10,000 units/day quota)
+  YouTube Search API   : Free (same quota)
+  Claude API           : ~₹0.08 per replacement decision
+  Vercel Cron          : Free
+  Supabase DB update   : Free
+  Total monthly        : Essentially ₹0
+
+PREREQUISITE — DB MIGRATION NEEDED FIRST
+-----------------------------------------
+Currently video IDs are hardcoded in /src/data/videoClasses.ts
+To allow runtime replacement without code deploys, migrate to Supabase:
+
+  -- Run in Supabase Studio SQL editor
+  CREATE TABLE video_classes (
+    id            TEXT PRIMARY KEY,       -- e.g. 'g5-m1-w1-mon'
+    grade         INT NOT NULL,
+    month         INT NOT NULL,           -- module number (1-10)
+    week          INT NOT NULL,
+    day           TEXT NOT NULL,          -- 'Mon' | 'Wed' | 'Fri'
+    topic         TEXT NOT NULL,
+    description   TEXT,
+    duration_min  INT,
+    youtube_id    TEXT NOT NULL,          -- swappable at runtime
+    status        TEXT DEFAULT 'active',  -- 'active' | 'private' | 'replaced'
+    replaced_from TEXT,                   -- original youtube_id if replaced
+    last_checked  TIMESTAMPTZ,
+    created_at    TIMESTAMPTZ DEFAULT NOW(),
+    updated_at    TIMESTAMPTZ DEFAULT NOW()
+  );
+
+  -- RLS: public can read active videos
+  ALTER TABLE video_classes ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "public read active" ON video_classes
+    FOR SELECT USING (status = 'active');
+
+  -- Admin can update
+  CREATE POLICY "admin update" ON video_classes
+    FOR UPDATE USING (auth.jwt() ->> 'email' = 'rayraman90@gmail.com');
+
+FILES TO CREATE WHEN IMPLEMENTING
+-----------------------------------
+  src/app/api/cron/youtube-health-check/route.ts
+    - GET handler triggered by Vercel Cron daily
+    - Reads all youtube_ids from video_classes table
+    - Calls YouTube Data API to check each video status
+    - Marks unavailable ones and triggers replacement agent
+
+  src/app/api/agents/youtube-replacement/route.ts
+    - POST handler — receives { videoId, topic, grade, module }
+    - Calls YouTube Search API with topic keywords
+    - Sends top 5 results to Claude for scoring
+    - Stores suggestion in new table: video_replacement_suggestions
+    - Sends admin notification
+
+  src/app/admin/video-health/page.tsx
+    - Admin page showing all flagged videos
+    - Side-by-side: broken video info vs suggested replacement (embedded preview)
+    - Approve / Reject / Search Again buttons
+    - On approve: calls PATCH /api/video-classes/[id] to update youtube_id
+
+  supabase/migrations/003_video_classes_table.sql
+    - The CREATE TABLE migration above
+
+  supabase/migrations/004_video_replacement_suggestions.sql
+    - Stores pending replacement suggestions for admin review
+
+vercel.json additions:
+  {
+    "crons": [
+      {
+        "path": "/api/cron/youtube-health-check",
+        "schedule": "0 2 * * *"
+      }
+    ]
+  }
+
+ENV VARIABLES NEEDED
+---------------------
+  YOUTUBE_DATA_API_KEY=   (get from Google Cloud Console, YouTube Data API v3)
+  ANTHROPIC_API_KEY=      (already used for AI Teacher feature)
+  ADMIN_NOTIFICATION_EMAIL=rayraman90@gmail.com
+
+YOUTUBE DATA API SETUP
+-----------------------
+  1. Go to https://console.cloud.google.com
+  2. Create project "WWJ YouTube Guardian"
+  3. Enable "YouTube Data API v3"
+  4. Create API Key (restrict to your Vercel domain)
+  5. Add to Vercel environment variables
+
+IMPLEMENTATION ORDER (when ready to build)
+-------------------------------------------
+  Step 1: Run DB migration — video_classes and video_replacement_suggestions tables
+  Step 2: Write a one-time script to seed video_classes from videoClasses.ts
+  Step 3: Update /classes/[id] page to read from DB instead of static file
+  Step 4: Build youtube-health-check cron route
+  Step 5: Build youtube-replacement agent route
+  Step 6: Build admin video-health page with approval UI
+  Step 7: Add cron schedule to vercel.json
+  Step 8: Test with a known-private video ID
+
+ESTIMATED DEVELOPMENT TIME
+---------------------------
+  ~2-3 days for a senior developer
+
+================================================================================
+END OF DOCUMENT
+================================================================================
