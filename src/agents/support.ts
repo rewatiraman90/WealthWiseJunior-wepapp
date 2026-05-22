@@ -12,7 +12,7 @@ Your job is to review open customer queries and draft professional, friendly res
 
 Subscription costs: ₹299/month or ₹2,868/year.
 Refund policy: 7 days from payment.
-Contact: hello@wealthwisejunior.in.net
+Contact: support@wealthwisejunior.in
 
 Always respond in this exact JSON format:
 {

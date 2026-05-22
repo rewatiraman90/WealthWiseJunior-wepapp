@@ -13,7 +13,7 @@ const navLinks = [
   { href: "/gps", icon: "🧭", label: "Freedom GPS" },
   { href: "/leaderboard", icon: "🏆", label: "Leaderboard" },
   { href: "/profile", icon: "🧑", label: "My Profile" },
-  { href: "/parent/dashboard", icon: "👪", label: "Parent Dashboard" },
+  { href: "/parent", icon: "👪", label: "Parent Dashboard" },
 ];
 
 const publicRoutes = ["/", "/apply", "/onboarding", "/terms", "/privacy", "/refund", "/contact"];

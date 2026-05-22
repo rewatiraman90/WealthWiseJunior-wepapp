@@ -1,6 +1,8 @@
 "use client";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/lib/supabaseClient";
 
 const wings = [
   {
@@ -102,6 +104,41 @@ export default function CampusDashboard() {
   const grade = parseInt(profile?.grade ?? "5", 10);
   const levelName = LEVEL_MAP[grade] ?? "Explorer";
   const currentModule = Math.min(10, Math.floor(attendedCount / 12) + 1);
+
+  const [cityTop, setCityTop] = useState<Array<{ rank: number; name: string; school: string; pts: number; isMe?: boolean }>>([]);
+
+  useEffect(() => {
+    if (!profile?.city) return;
+    async function fetchCityTop() {
+      const { data } = await supabase
+        .from("profiles")
+        .select("id, name, school, xp_total")
+        .ilike("city", `%${profile!.city}%`)
+        .order("xp_total", { ascending: false })
+        .limit(10);
+      if (!data) return;
+      const top3 = data.slice(0, 3);
+      const rows: typeof cityTop = top3.map((p, i) => ({
+        rank: i + 1,
+        name: p.id === profile!.id ? "You ✨" : (p.name || "Student"),
+        school: p.school || "School",
+        pts: p.xp_total || 0,
+        isMe: p.id === profile!.id,
+      }));
+      const myIndex = data.findIndex(p => p.id === profile!.id);
+      if (myIndex >= 3) {
+        rows.push({
+          rank: myIndex + 1,
+          name: "You ✨",
+          school: profile!.school || "Your School",
+          pts: xp,
+          isMe: true,
+        });
+      }
+      setCityTop(rows);
+    }
+    fetchCityTop();
+  }, [profile?.city, profile?.id]);
 
   // For Free Explorers, force-lock the premium wings
   const dashboardWings = wings.map(w => {
@@ -235,22 +272,20 @@ export default function CampusDashboard() {
           <Link href="/classes" className="btn-primary" style={{ fontSize: "0.85rem", padding: "0.6rem 1.4rem" }}>Start Lesson →</Link>
         </div>
         <div className="leaderboard-preview premium-glass">
-          <span className="nl-tag">🏆 Top Students — Your City</span>
-          {[
-            { rank: 1, name: "Priya S.", school: "DPS, Bhopal", pts: 18340 },
-            { rank: 2, name: "Rohit K.", school: "KV, Bhopal", pts: 15200 },
-            { rank: 3, name: "Sneha M.", school: "Amity, Bhopal", pts: 14700 },
-            { rank: 4, name: "You ✨", school: "Your School", pts: 12450, isMe: true },
-          ].map(s => (
-            <div key={s.rank} className={`lb-row ${s.isMe ? "lb-me" : ""}`}>
-              <span className="lb-rank">{s.rank}</span>
-              <div className="lb-info">
-                <span className="lb-name">{s.name}</span>
-                <span className="lb-school">{s.school}</span>
+          <span className="nl-tag">🏆 Top Students — {profile?.city || "Your City"}</span>
+          {cityTop.length === 0
+            ? <p style={{ fontSize: "0.75rem", color: "var(--muted)", margin: "0.5rem 0" }}>Loading rankings…</p>
+            : cityTop.map(s => (
+              <div key={s.rank} className={`lb-row ${s.isMe ? "lb-me" : ""}`}>
+                <span className="lb-rank">{s.rank}</span>
+                <div className="lb-info">
+                  <span className="lb-name">{s.name}</span>
+                  <span className="lb-school">{s.school}</span>
+                </div>
+                <span className="lb-pts">{s.pts.toLocaleString()}</span>
               </div>
-              <span className="lb-pts">{s.pts.toLocaleString()}</span>
-            </div>
-          ))}
+            ))
+          }
         </div>
       </div>
 

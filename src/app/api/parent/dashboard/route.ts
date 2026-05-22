@@ -21,22 +21,38 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Profile not found" }, { status: 404 });
   }
 
-  // Rank within city
+  // City rankings — fetch name and school for display
   const { data: cityProfiles } = await supabaseAdmin
     .from("profiles")
-    .select("id, xp")
+    .select("id, name, school, xp_total")
     .ilike("city", `%${profile.city}%`);
 
-  const sortedCity = (cityProfiles || []).sort((a, b) => (b.xp || 0) - (a.xp || 0));
+  const sortedCity = (cityProfiles || []).sort((a, b) => (b.xp_total || 0) - (a.xp_total || 0));
   const cityRank = sortedCity.findIndex((p) => p.id === user.id) + 1;
   const cityTotal = sortedCity.length;
+
+  const cityTopStudents = sortedCity.slice(0, 5).map((p, i) => ({
+    rank: i + 1,
+    name: p.id === user.id ? "You ✨" : (p.name || "Student"),
+    school: p.school || "School",
+    xp: p.xp_total || 0,
+    isMe: p.id === user.id,
+  }));
 
   // Overall rank
   const { data: allProfiles } = await supabaseAdmin
     .from("profiles")
-    .select("id, xp");
-  const sortedAll = (allProfiles || []).sort((a, b) => (b.xp || 0) - (a.xp || 0));
+    .select("id, xp_total");
+  const sortedAll = (allProfiles || []).sort((a, b) => (b.xp_total || 0) - (a.xp_total || 0));
   const overallRank = sortedAll.findIndex((p) => p.id === user.id) + 1;
+
+  // Real attendance from class_attendance table
+  const { data: attendance } = await supabaseAdmin
+    .from("class_attendance")
+    .select("class_id, grade, module, week, day, xp_earned, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(10);
 
   return NextResponse.json({
     profile: {
@@ -47,8 +63,9 @@ export async function GET(req: Request) {
       city: profile.city,
       rollNumber: profile.roll_number,
       avatarUrl: profile.avatar_url,
-      xp: profile.xp || 0,
-      streak: profile.streak || 0,
+      xp: profile.xp_total || 0,
+      streak: profile.streak || profile.current_streak || 0,
+      attendedCount: profile.attended_count || 0,
       isSubscriber: profile.is_subscriber,
       joinedAt: profile.created_at,
     },
@@ -57,5 +74,7 @@ export async function GET(req: Request) {
       cityTotal,
       overallRank: overallRank || null,
     },
+    cityTopStudents,
+    recentAttendance: attendance || [],
   });
 }

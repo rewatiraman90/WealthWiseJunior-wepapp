@@ -91,6 +91,24 @@ export default function VideoClassPage() {
         const pass = correctCount >= 2;
         setSubmitted(true);
         setPassed(pass);
+
+        if (userId) {
+          // Always persist the score (pass or fail) for progress tracking
+          fetch("/api/assessment-scores", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId,
+              classId: safeCls.id,
+              grade: safeCls.grade,
+              module: safeCls.month,
+              score: correctCount,
+              passed: pass,
+              answersSubmitted: answers,
+            }),
+          }).catch(() => {});
+        }
+
         if (pass && !attended) {
           markAttended(safeCls.id);
           setAttended(true);
