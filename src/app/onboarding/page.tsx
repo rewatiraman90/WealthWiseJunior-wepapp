@@ -37,7 +37,7 @@ function OnboardingContent() {
   const searchParams = useSearchParams();
   const [step, setStep] = useState<'loading' | 'signin' | 'info' | 'plan'>('loading');
   const [formData, setFormData] = useState({
-    name: '', age: '', grade: '', school: '', city: ''
+    name: '', age: '', grade: '5', school: '', city: ''
   });
   
   // Auth state
@@ -52,6 +52,12 @@ function OnboardingContent() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [sessionUid, setSessionUid] = useState<string | null>(null);
+
+  useEffect(() => {
+    const paymentResult = searchParams.get('payment');
+    if (paymentResult === 'failed') setErrorMsg('Payment was declined. Please try again or use a different card.');
+    if (paymentResult === 'error') setErrorMsg('Something went wrong during payment. Please contact support@wealthwisejunior.in');
+  }, [searchParams]);
 
   useEffect(() => {
     const checkSession = async () => {
@@ -402,21 +408,11 @@ function OnboardingContent() {
                 />
               </div>
               <div className="input-group">
-                <label>Your Starting Level</label>
-                <select
-                  required value={formData.grade}
-                  onChange={e => setFormData({ ...formData, grade: e.target.value })}
-                >
-                  <option value="">Select your level</option>
-                  {[5, 6, 7, 8, 9, 10, 11, 12].map(g => {
-                    const lvl = LEVEL_MAP[g];
-                    return (
-                      <option key={g} value={g}>
-                        Level {lvl.level} — {lvl.name} (Class {g})
-                      </option>
-                    );
-                  })}
-                </select>
+                <label>Starting Level</label>
+                <div style={{ padding: '0.75rem 1rem', borderRadius: '0.75rem', background: 'rgba(108,99,255,0.08)', border: '1px solid rgba(108,99,255,0.25)', color: 'var(--primary-glow)', fontWeight: 800, fontSize: '0.95rem' }}>
+                  Level 1 — Explorer
+                  <span style={{ display: 'block', fontSize: '0.72rem', color: 'var(--muted)', fontWeight: 600, marginTop: '0.2rem' }}>Every student starts at Level 1 and advances monthly</span>
+                </div>
               </div>
             </div>
 
@@ -489,8 +485,7 @@ function OnboardingContent() {
               <div className="plan-roll-preview">
                 <span className="roll-label">Your Level & Roll No.</span>
                 <span className="roll-num subscriber-roll">
-                  {formData.grade ? `${LEVEL_MAP[parseInt(formData.grade)]?.name || "Explorer"} — ` : ""}
-                  WWJ-{formData.grade}{formData.city.slice(0, 3).toUpperCase()}26-???? <span className="blue-tick-preview">✓</span>
+                  Explorer — WWJ-5{formData.city.slice(0, 3).toUpperCase()}26-???? <span className="blue-tick-preview">✓</span>
                 </span>
               </div>
               <ul className="plan-features">

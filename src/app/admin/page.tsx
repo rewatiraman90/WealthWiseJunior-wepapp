@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import { syllabusData } from "@/data/curriculum";
+import { videoSchedule } from "@/data/videoClasses";
 
 const ADMIN_EMAIL = "rayraman90@gmail.com";
 
@@ -32,7 +34,9 @@ export default function AdminDashboard() {
   const router = useRouter();
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"users" | "feedback" | "agents" | "scholarships">("users");
+  const [activeTab, setActiveTab] = useState<"users" | "feedback" | "agents" | "scholarships" | "curriculum">("users");
+  const [expandedLevel, setExpandedLevel] = useState<number | null>(null);
+  const [expandedModule, setExpandedModule] = useState<string | null>(null);
 
   // ── SCHOLARSHIP STATE ──
   const [schTab, setSchTab] = useState<"applications" | "grants">("applications");
@@ -288,6 +292,12 @@ export default function AdminDashboard() {
             {applications.filter(a => a.status === "pending").length > 0 && (
               <span className="unread-dot">{applications.filter(a => a.status === "pending").length}</span>
             )}
+          </button>
+          <button
+            className={`admin-tab ${activeTab === "curriculum" ? "active" : ""}`}
+            onClick={() => setActiveTab("curriculum")}
+          >
+            📚 Curriculum
           </button>
         </div>
       </div>
@@ -786,6 +796,97 @@ export default function AdminDashboard() {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* === CURRICULUM TAB === */}
+      {activeTab === "curriculum" && (
+        <div className="admin-section">
+          <div className="section-toolbar">
+            <div>
+              <h2 style={{ fontWeight: 900, fontSize: '1.1rem', color: 'var(--foreground)' }}>All Levels &amp; Modules</h2>
+              <p style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.2rem' }}>Click a level to expand modules. Click a module to see all video classes.</p>
+            </div>
+          </div>
+
+          {[5,6,7,8,9,10,11,12].map(grade => {
+            const LEVEL_NAMES: Record<number,string> = { 5:'Explorer', 6:'Saver', 7:'Planner', 8:'Strategist', 9:'Analyst', 10:'Investor', 11:'Architect', 12:'Master' };
+            const levelName = LEVEL_NAMES[grade];
+            const syllabus = syllabusData[grade];
+            const classes = videoSchedule[grade] || [];
+            const isLevelOpen = expandedLevel === grade;
+
+            return (
+              <div key={grade} className="premium-glass" style={{ borderRadius: '1.25rem', overflow: 'hidden' }}>
+                <button
+                  onClick={() => setExpandedLevel(isLevelOpen ? null : grade)}
+                  style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1.25rem 1.5rem', background: 'transparent', border: 'none', color: 'var(--foreground)', cursor: 'pointer', fontFamily: 'inherit', gap: '1rem' }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ background: 'linear-gradient(135deg,var(--primary),var(--neon-green))', color: '#050816', fontWeight: 900, fontSize: '0.75rem', padding: '0.3rem 0.75rem', borderRadius: '2rem', whiteSpace: 'nowrap' }}>
+                      Level {grade - 4} · Class {grade}
+                    </span>
+                    <span style={{ fontWeight: 900, fontSize: '1rem' }}>{levelName}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600 }}>
+                      {syllabus?.modules.length ?? 0} modules · {classes.length} classes
+                    </span>
+                  </div>
+                  <span style={{ color: 'var(--muted)', fontSize: '1.2rem' }}>{isLevelOpen ? '▲' : '▼'}</span>
+                </button>
+
+                {isLevelOpen && syllabus && (
+                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', padding: '1rem 1.5rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {syllabus.modules.map((mod, modIdx) => {
+                      const modNum = modIdx + 1;
+                      const modKey = `${grade}-${modNum}`;
+                      const isModOpen = expandedModule === modKey;
+                      const modClasses = classes.filter(c => c.month === modNum);
+
+                      return (
+                        <div key={modKey} style={{ borderRadius: '0.75rem', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.06)' }}>
+                          <button
+                            onClick={() => setExpandedModule(isModOpen ? null : modKey)}
+                            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.85rem 1.2rem', background: 'rgba(255,255,255,0.03)', border: 'none', color: 'var(--foreground)', cursor: 'pointer', fontFamily: 'inherit', gap: '1rem', textAlign: 'left' }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <span style={{ fontSize: '0.68rem', fontWeight: 900, color: 'var(--primary-glow)', background: 'rgba(108,99,255,0.12)', border: '1px solid rgba(108,99,255,0.25)', padding: '0.15rem 0.5rem', borderRadius: '0.5rem' }}>
+                                M{modNum} · {mod.month}
+                              </span>
+                              <span style={{ fontWeight: 800, fontSize: '0.9rem' }}>{mod.topic}</span>
+                              <span style={{ fontSize: '0.72rem', color: 'var(--muted)' }}>{modClasses.length} classes</span>
+                            </div>
+                            <span style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>{isModOpen ? '▲' : '▼'}</span>
+                          </button>
+
+                          {isModOpen && (
+                            <div style={{ padding: '0.5rem 1.2rem 0.75rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                              {modClasses.map(cls => (
+                                <a
+                                  key={cls.id}
+                                  href={`/classes/${cls.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.5rem 0.75rem', borderRadius: '0.5rem', background: 'rgba(0,0,0,0.2)', color: 'var(--foreground)', textDecoration: 'none', fontSize: '0.83rem', transition: 'background 0.15s' }}
+                                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(108,99,255,0.1)')}
+                                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(0,0,0,0.2)')}
+                                >
+                                  <span style={{ fontSize: '0.68rem', color: 'var(--muted)', fontWeight: 700, whiteSpace: 'nowrap', minWidth: '80px' }}>
+                                    W{cls.week} · {cls.day}
+                                  </span>
+                                  <span style={{ fontWeight: 600 }}>{cls.topic}</span>
+                                  <span style={{ marginLeft: 'auto', fontSize: '0.68rem', color: 'var(--primary-glow)' }}>Open →</span>
+                                </a>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
 

@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import Razorpay from 'razorpay';
+import { getAuthenticatedUser } from '@/lib/serverAuth';
 
 export async function POST(req: Request) {
   try {
+    const user = await getAuthenticatedUser(req);
+    if (!user) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+
     const { planType } = await req.json(); // expected 'monthly' or 'annual'
 
     let planId = "";

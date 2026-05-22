@@ -3,6 +3,7 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { useProfile } from "@/hooks/useProfile";
 import { supabase } from "@/lib/supabaseClient";
+import { useSearchParams } from "next/navigation";
 
 const wings = [
   {
@@ -95,7 +96,17 @@ const TOTAL_SESSIONS = 120; // 10 modules × 12 sessions
 
 export default function CampusDashboard() {
   const { profile } = useProfile();
+  const searchParams = useSearchParams();
   const isSubscriber = profile?.isSubscriber ?? false;
+  const [paymentToast, setPaymentToast] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success') {
+      setPaymentToast(true);
+      setTimeout(() => setPaymentToast(false), 6000);
+      window.history.replaceState({}, '', '/campus');
+    }
+  }, [searchParams]);
 
   const xp = profile?.xp_total ?? 0;
   const streak = profile?.current_streak ?? 0;
@@ -158,6 +169,11 @@ export default function CampusDashboard() {
 
   return (
     <div className="campus-wrap">
+      {paymentToast && (
+        <div style={{ position: 'fixed', top: '1.5rem', left: '50%', transform: 'translateX(-50%)', zIndex: 9999, background: 'linear-gradient(135deg,rgba(0,229,160,0.95),rgba(0,180,130,0.95))', color: '#050816', padding: '1rem 2rem', borderRadius: '2rem', fontWeight: 900, fontSize: '1rem', boxShadow: '0 8px 40px rgba(0,229,160,0.4)', display: 'flex', alignItems: 'center', gap: '0.75rem', whiteSpace: 'nowrap' }}>
+          🎉 Welcome to Premium! Your subscription is active.
+        </div>
+      )}
       {/* ── HERO ── */}
       <div className="campus-hero">
         <div>
