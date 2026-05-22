@@ -92,8 +92,9 @@ export default function MarketSimulator() {
 
   const grade = parseInt(profile?.grade ?? "5", 10);
   const isSubscriber = profile?.isSubscriber ?? false;
+  const isAdmin = profile?.isAdmin ?? false;
 
-  if (!isSubscriber || grade < 9) {
+  if (!isAdmin && (!isSubscriber || grade < 9)) {
     return (
       <div className="ms-wrap">
         <div className="ms-locked premium-glass">
