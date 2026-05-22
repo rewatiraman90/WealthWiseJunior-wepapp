@@ -153,31 +153,46 @@ export default function CurriculumPage() {
 
                         {isModOpen && (
                           <div className="cur-lessons">
-                            {modClasses.length === 0 ? (
-                              <div className="cur-coming-soon">
-                                🎬 Video lessons for this module are being added — check back soon!
-                              </div>
-                            ) : modClasses.map((cls, li) => {
-                              const canWatch = isAdmin || (isMyGradeModule && isUnlocked && (isSubscriber || modNum === 1));
-                              return (
-                                <div key={cls.id} className={`cur-lesson ${canWatch ? "lesson-open" : "lesson-locked"}`}>
+                            {modClasses.length > 0 ? (
+                              modClasses.map((cls, li) => {
+                                const canWatch = isAdmin || (isMyGradeModule && isUnlocked && (isSubscriber || modNum === 1));
+                                return (
+                                  <div key={cls.id} className={`cur-lesson ${canWatch ? "lesson-open" : "lesson-locked"}`}>
+                                    <div className="cur-lesson-left">
+                                      <span className="cur-lesson-num">{li + 1}</span>
+                                      <div className="cur-lesson-info">
+                                        <span className="cur-lesson-topic">{cls.topic}</span>
+                                        <span className="cur-lesson-meta">W{cls.week} · {cls.day} · {cls.durationMin} min</span>
+                                      </div>
+                                    </div>
+                                    {canWatch ? (
+                                      <Link href={`/classes/${cls.id}`} className="cur-lesson-btn">Watch →</Link>
+                                    ) : (
+                                      <span className="cur-lesson-lock">
+                                        {!isSubscriber && isMyGradeModule ? "⭐ Subscribe" : "🔒 Locked"}
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })
+                            ) : isAdmin ? (
+                              mod.steps.map((step, li) => (
+                                <div key={li} className="cur-lesson lesson-open">
                                   <div className="cur-lesson-left">
                                     <span className="cur-lesson-num">{li + 1}</span>
                                     <div className="cur-lesson-info">
-                                      <span className="cur-lesson-topic">{cls.topic}</span>
-                                      <span className="cur-lesson-meta">W{cls.week} · {cls.day} · {cls.durationMin} min</span>
+                                      <span className="cur-lesson-topic">{step.title}</span>
+                                      <span className="cur-lesson-meta">📝 Curriculum content · Video coming soon</span>
                                     </div>
                                   </div>
-                                  {canWatch ? (
-                                    <Link href={`/classes/${cls.id}`} className="cur-lesson-btn">Watch →</Link>
-                                  ) : (
-                                    <span className="cur-lesson-lock">
-                                      {!isSubscriber && isMyGradeModule ? "⭐ Subscribe" : "🔒 Locked"}
-                                    </span>
-                                  )}
+                                  <span className="cur-lesson-draft">Draft</span>
                                 </div>
-                              );
-                            })}
+                              ))
+                            ) : (
+                              <div className="cur-coming-soon">
+                                🎬 Video lessons for this module are being added — check back soon!
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -254,6 +269,7 @@ export default function CurriculumPage() {
         .cur-lesson-btn { padding: 0.3rem 0.85rem; background: linear-gradient(135deg, var(--primary), #8b5cf6); color: white; border-radius: 2rem; font-size: 0.72rem; font-weight: 800; text-decoration: none; white-space: nowrap; flex-shrink: 0; }
         .cur-lesson-lock { font-size: 0.7rem; font-weight: 700; color: var(--muted); white-space: nowrap; flex-shrink: 0; padding: 0.3rem 0.7rem; border-radius: 2rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); }
         .cur-coming-soon { padding: 1.25rem 1.75rem; font-size: 0.82rem; color: var(--muted); font-weight: 600; font-style: italic; }
+        .cur-lesson-draft { font-size: 0.68rem; font-weight: 700; color: #FFD166; padding: 0.25rem 0.6rem; border-radius: 2rem; background: rgba(255,209,102,0.1); border: 1px solid rgba(255,209,102,0.25); white-space: nowrap; flex-shrink: 0; }
       `}</style>
     </div>
   );
