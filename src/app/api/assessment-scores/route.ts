@@ -22,6 +22,31 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid score" }, { status: 400 });
   }
 
+  // Check for existing attempt
+  const { data: existing } = await supabase
+    .from("assessment_scores")
+    .select("id, passed")
+    .eq("user_id", user.id)
+    .eq("class_id", classId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .single();
+
+  // Block resubmission if already passed
+  if (existing?.passed) {
+    return NextResponse.json({ ok: true, alreadyPassed: true });
+  }
+
+  // Update existing failed attempt instead of inserting a duplicate
+  if (existing) {
+    const { error } = await supabase
+      .from("assessment_scores")
+      .update({ score, passed, answers_submitted: answersSubmitted })
+      .eq("id", existing.id);
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ ok: true });
+  }
+
   const { error } = await supabase.from("assessment_scores").insert({
     user_id: user.id,
     class_id: classId,
