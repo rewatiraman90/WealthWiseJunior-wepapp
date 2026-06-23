@@ -64,7 +64,7 @@ export async function GET(req: Request) {
       rollNumber: profile.roll_number,
       avatarUrl: profile.avatar_url,
       xp: profile.xp_total || 0,
-      streak: profile.streak || profile.current_streak || 0,
+      streak: profile.current_streak || 0,
       attendedCount: profile.attended_count || 0,
       isSubscriber: profile.is_subscriber,
       joinedAt: profile.created_at,
